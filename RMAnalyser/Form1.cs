@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
@@ -92,8 +94,8 @@ namespace RMAnalyser
 
 		private void CsvReader()
 		{
-			var headerDic = new Dictionary<string, string>();
-			var cellRowList = new List<string>();
+
+			var headerDic = new Dictionary<string, NameWidth>();
 
 			using (StreamReader sr = new StreamReader(this.m_ReadFile, m_Encod)) {
 
@@ -104,7 +106,7 @@ namespace RMAnalyser
 					string[] values = line.Split(',');
 
 					// 横ライン分
-					var dic = new Dictionary<string, string>();
+					var dataDic = new Dictionary<string, string>();
 
 					for (int column = 0; column < values.Length; column++) {
 						// 必要なデータだけ取り込む
@@ -114,13 +116,13 @@ namespace RMAnalyser
 						if (row == 0) {
 							// データから取り込んでヘッダを作成
 							//m_HeaderNameWidth.Add(new HeaderNameWidth(this.NecessaryCsvTbl[column], values[column], column.ToString()));
-							headerDic.Add(column.ToString(), values[column]);
+							var nameWidth = new NameWidth(values[column], this.UseCsvTbl[column]);
+							headerDic.Add(column.ToString(), nameWidth);
 						}
 						// 本体
 						else {
 							string value = values[column];
-							dic.Add(column.ToString(), value);
-							cellRowList.Add(value);
+							dataDic.Add(column.ToString(), value);
 						}
 					}
 					// 追加項目
@@ -128,11 +130,71 @@ namespace RMAnalyser
 				}
 			}
 
-			//※確認用
-			foreach (var d in headerDic) {
-				textBox開発.Text += d.Value + "\t";
-			}
+			MakeHeaderRow(headerDic);
 
 		}
+
+		private void MakeHeaderRow(Dictionary<string, NameWidth> header)
+		{
+			//	// 
+			//	// dataGridView出力
+			//	// 
+			//	this.dataGridView出力.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			//	this.dataGridView出力.Location = new System.Drawing.Point(8, 18);
+			//	this.dataGridView出力.Name = "dataGridView出力";
+			//	this.dataGridView出力.RowTemplate.Height = 21;
+			//	this.dataGridView出力.Size = new System.Drawing.Size(583, 299);
+			//	this.dataGridView出力.TabIndex = 0;
+
+			var dgvProgress = new DGVProgress();
+			// コントロールを使用できなくする
+			((System.ComponentModel.ISupportInitialize)(dgvProgress)).BeginInit();
+
+			// 左上隅のセルの値
+			dgvProgress.TopLeftHeaderCell.Value = "タスク";
+			//dgvProgress.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			dgvProgress.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+
+			// カラム(ヘッダ)の出力
+			foreach (var h in header) {
+
+				string name = h.Value.Name;
+				int width = h.Value.Width;
+				dgvProgress.Columns.Add(name, name);
+				dgvProgress.Columns[name].Width = width;
+			}
+
+			this.groupBox3.Controls.Add(dgvProgress);
+			dgvProgress.Location = new Point(10, 20);
+
+
+			//dgvProgress.RowTemplate.Height = 21;//?
+
+			// 自動でコントロールの四辺にドッキングして適切なサイズに調整される
+			dgvProgress.Dock = DockStyle.Fill;
+			//※↓手動でする場合
+			//int width = this.groupBox3.Size.Width - 20;
+			//int height = this.groupBox3.Size.Height - 30;
+			//dgvProgress.Size = new Size(width, height);
+
+
+			// 初期化が完了したら送信する
+			((System.ComponentModel.ISupportInitialize)(dgvProgress)).EndInit();
+		}
+
 	}
+
+
+	class NameWidth
+	{
+		public int Width { get; set; }
+		public string Name { get; set; }
+
+		public NameWidth(string name, int width)
+		{
+			this.Name = name;
+			this.Width = width;
+		}
+	}
+
 }

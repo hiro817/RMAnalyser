@@ -28,10 +28,10 @@
 		private void InitializeComponent()
 		{
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.textBoxファイル名 = new System.Windows.Forms.TextBox();
+			this.label情報 = new System.Windows.Forms.Label();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
-			this.label情報 = new System.Windows.Forms.Label();
-			this.textBoxファイル名 = new System.Windows.Forms.TextBox();
 			this.textBox開発 = new System.Windows.Forms.TextBox();
 			this.groupBox1.SuspendLayout();
 			this.SuspendLayout();
@@ -47,6 +47,22 @@
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "groupBox1";
 			// 
+			// textBoxファイル名
+			// 
+			this.textBoxファイル名.Location = new System.Drawing.Point(9, 19);
+			this.textBoxファイル名.Name = "textBoxファイル名";
+			this.textBoxファイル名.Size = new System.Drawing.Size(236, 19);
+			this.textBoxファイル名.TabIndex = 1;
+			// 
+			// label情報
+			// 
+			this.label情報.AutoSize = true;
+			this.label情報.Location = new System.Drawing.Point(7, 39);
+			this.label情報.Name = "label情報";
+			this.label情報.Size = new System.Drawing.Size(35, 12);
+			this.label情報.TabIndex = 0;
+			this.label情報.Text = "label1";
+			// 
 			// groupBox2
 			// 
 			this.groupBox2.Location = new System.Drawing.Point(13, 77);
@@ -60,26 +76,10 @@
 			// 
 			this.groupBox3.Location = new System.Drawing.Point(271, 13);
 			this.groupBox3.Name = "groupBox3";
-			this.groupBox3.Size = new System.Drawing.Size(517, 296);
+			this.groupBox3.Size = new System.Drawing.Size(610, 296);
 			this.groupBox3.TabIndex = 2;
 			this.groupBox3.TabStop = false;
 			this.groupBox3.Text = "groupBox3";
-			// 
-			// label情報
-			// 
-			this.label情報.AutoSize = true;
-			this.label情報.Location = new System.Drawing.Point(7, 39);
-			this.label情報.Name = "label情報";
-			this.label情報.Size = new System.Drawing.Size(35, 12);
-			this.label情報.TabIndex = 0;
-			this.label情報.Text = "label1";
-			// 
-			// textBoxファイル名
-			// 
-			this.textBoxファイル名.Location = new System.Drawing.Point(9, 19);
-			this.textBoxファイル名.Name = "textBoxファイル名";
-			this.textBoxファイル名.Size = new System.Drawing.Size(236, 19);
-			this.textBoxファイル名.TabIndex = 1;
 			// 
 			// textBox開発
 			// 
@@ -95,7 +95,7 @@
 			this.AllowDrop = true;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(800, 450);
+			this.ClientSize = new System.Drawing.Size(888, 450);
 			this.Controls.Add(this.textBox開発);
 			this.Controls.Add(this.groupBox3);
 			this.Controls.Add(this.groupBox2);
