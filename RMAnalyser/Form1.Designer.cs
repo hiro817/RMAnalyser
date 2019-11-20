@@ -30,10 +30,15 @@
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
+			this.label情報 = new System.Windows.Forms.Label();
+			this.textBoxファイル名 = new System.Windows.Forms.TextBox();
+			this.groupBox1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Controls.Add(this.textBoxファイル名);
+			this.groupBox1.Controls.Add(this.label情報);
 			this.groupBox1.Location = new System.Drawing.Point(13, 13);
 			this.groupBox1.Name = "groupBox1";
 			this.groupBox1.Size = new System.Drawing.Size(251, 57);
@@ -59,16 +64,39 @@
 			this.groupBox3.TabStop = false;
 			this.groupBox3.Text = "groupBox3";
 			// 
+			// label情報
+			// 
+			this.label情報.AutoSize = true;
+			this.label情報.Location = new System.Drawing.Point(7, 39);
+			this.label情報.Name = "label情報";
+			this.label情報.Size = new System.Drawing.Size(35, 12);
+			this.label情報.TabIndex = 0;
+			this.label情報.Text = "label1";
+			// 
+			// textBoxファイル名
+			// 
+			this.textBoxファイル名.Location = new System.Drawing.Point(9, 19);
+			this.textBoxファイル名.Name = "textBoxファイル名";
+			this.textBoxファイル名.Size = new System.Drawing.Size(236, 19);
+			this.textBoxファイル名.TabIndex = 1;
+			// 
 			// Form1
 			// 
+			this.AllowDrop = true;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(800, 450);
 			this.Controls.Add(this.groupBox3);
 			this.Controls.Add(this.groupBox2);
 			this.Controls.Add(this.groupBox1);
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+			this.MaximizeBox = false;
 			this.Name = "Form1";
 			this.Text = "Form1";
+			this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Form1_DragDrop);
+			this.DragEnter += new System.Windows.Forms.DragEventHandler(this.Form1_DragEnter);
+			this.groupBox1.ResumeLayout(false);
+			this.groupBox1.PerformLayout();
 			this.ResumeLayout(false);
 
 		}
@@ -78,6 +106,8 @@
 		private System.Windows.Forms.GroupBox groupBox1;
 		private System.Windows.Forms.GroupBox groupBox2;
 		private System.Windows.Forms.GroupBox groupBox3;
+		private System.Windows.Forms.Label label情報;
+		private System.Windows.Forms.TextBox textBoxファイル名;
 	}
 }
 
