@@ -12,9 +12,13 @@ namespace RMAnalyser
 {
 	public partial class Form1 : Form
 	{
+		private readonly string Version = "1.00";
+
 		public Form1()
 		{
 			InitializeComponent();
+
+			this.Text = "RedAnalyser Ver." + Version;
 		}
 	}
 }
