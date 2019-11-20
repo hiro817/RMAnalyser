@@ -32,6 +32,7 @@
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
 			this.label情報 = new System.Windows.Forms.Label();
 			this.textBoxファイル名 = new System.Windows.Forms.TextBox();
+			this.textBox開発 = new System.Windows.Forms.TextBox();
 			this.groupBox1.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -80,12 +81,22 @@
 			this.textBoxファイル名.Size = new System.Drawing.Size(236, 19);
 			this.textBoxファイル名.TabIndex = 1;
 			// 
+			// textBox開発
+			// 
+			this.textBox開発.BackColor = System.Drawing.Color.Wheat;
+			this.textBox開発.Location = new System.Drawing.Point(13, 328);
+			this.textBox開発.Multiline = true;
+			this.textBox開発.Name = "textBox開発";
+			this.textBox開発.Size = new System.Drawing.Size(775, 110);
+			this.textBox開発.TabIndex = 3;
+			// 
 			// Form1
 			// 
 			this.AllowDrop = true;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(800, 450);
+			this.Controls.Add(this.textBox開発);
 			this.Controls.Add(this.groupBox3);
 			this.Controls.Add(this.groupBox2);
 			this.Controls.Add(this.groupBox1);
@@ -98,6 +109,7 @@
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
 			this.ResumeLayout(false);
+			this.PerformLayout();
 
 		}
 
@@ -108,6 +120,7 @@
 		private System.Windows.Forms.GroupBox groupBox3;
 		private System.Windows.Forms.Label label情報;
 		private System.Windows.Forms.TextBox textBoxファイル名;
+		private System.Windows.Forms.TextBox textBox開発;
 	}
 }
 
