@@ -13,7 +13,7 @@ namespace RMAnalyser
 		private string m_ReadFile;
 		readonly Encoding m_Encod = Encoding.GetEncoding("Shift_JIS");
 
-
+		private DGVProgress DgvProgress;
 
 		public Form1()
 		{
@@ -96,6 +96,7 @@ namespace RMAnalyser
 		{
 
 			var headerDic = new Dictionary<string, NameWidth>();
+			var dataList = new List<Dictionary<string, string>>();
 
 			using (StreamReader sr = new StreamReader(this.m_ReadFile, m_Encod)) {
 
@@ -123,78 +124,143 @@ namespace RMAnalyser
 						else {
 							string value = values[column];
 							dataDic.Add(column.ToString(), value);
+
 						}
 					}
 					// 追加項目
+					if (row != 0) {
 
+						dataList.Add(dataDic);
+					}
 				}
 			}
 
-			MakeHeaderRow(headerDic);
+			this.DgvProgress = new DGVProgress();
 
+			MakeProgressGrid(headerDic);
+			MakeCellGrid(dataList);
 		}
 
-		private void MakeHeaderRow(Dictionary<string, NameWidth> header)
+		private void MakeProgressGrid(Dictionary<string, NameWidth> headerDic)
 		{
-			//	// 
-			//	// dataGridView出力
-			//	// 
-			//	this.dataGridView出力.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			//	this.dataGridView出力.Location = new System.Drawing.Point(8, 18);
-			//	this.dataGridView出力.Name = "dataGridView出力";
-			//	this.dataGridView出力.RowTemplate.Height = 21;
-			//	this.dataGridView出力.Size = new System.Drawing.Size(583, 299);
-			//	this.dataGridView出力.TabIndex = 0;
+			// ▼初期化中はコントロール使用不可
+			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
+			{
+				// 左上隅のセルの値
+				this.DgvProgress.TopLeftHeaderCell.Value = "タスク";
+				//this.DgvProgress.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+				this.DgvProgress.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
 
-			var dgvProgress = new DGVProgress();
-			// コントロールを使用できなくする
-			((System.ComponentModel.ISupportInitialize)(dgvProgress)).BeginInit();
+				// カラム(ヘッダ)の出力
+				foreach (var h in headerDic) {
+					string name = h.Value.Name;
+					this.DgvProgress.Columns.Add(name, name);
+					this.DgvProgress.Columns[name].Width = h.Value.Width;
+				}
 
-			// 左上隅のセルの値
-			dgvProgress.TopLeftHeaderCell.Value = "タスク";
-			//dgvProgress.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			dgvProgress.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+				this.groupBox3.Controls.Add(this.DgvProgress);
+				this.DgvProgress.Location = new Point(10, 20);
 
-			// カラム(ヘッダ)の出力
-			foreach (var h in header) {
 
-				string name = h.Value.Name;
-				int width = h.Value.Width;
-				dgvProgress.Columns.Add(name, name);
-				dgvProgress.Columns[name].Width = width;
+				//this.DgvProgress.RowTemplate.Height = 21;//?
+
+				// 自動でコントロールの四辺にドッキングして適切なサイズに調整される
+				this.DgvProgress.Dock = DockStyle.Fill;
+				//※↓手動の場合
+				//int width = this.groupBox3.Size.Width - 20;
+				//int height = this.groupBox3.Size.Height - 30;
+				//this.DgvProgress.Size = new Size(width, height);
+
 			}
-
-			this.groupBox3.Controls.Add(dgvProgress);
-			dgvProgress.Location = new Point(10, 20);
-
-
-			//dgvProgress.RowTemplate.Height = 21;//?
-
-			// 自動でコントロールの四辺にドッキングして適切なサイズに調整される
-			dgvProgress.Dock = DockStyle.Fill;
-			//※↓手動でする場合
-			//int width = this.groupBox3.Size.Width - 20;
-			//int height = this.groupBox3.Size.Height - 30;
-			//dgvProgress.Size = new Size(width, height);
-
-
-			// 初期化が完了したら送信する
-			((System.ComponentModel.ISupportInitialize)(dgvProgress)).EndInit();
+			// ▲初期化が完了したら送信する
+			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
 		}
 
-	}
 
-
-	class NameWidth
-	{
-		public int Width { get; set; }
-		public string Name { get; set; }
-
-		public NameWidth(string name, int width)
+		private void MakeCellGrid(List<Dictionary<string, string>> list)
 		{
-			this.Name = name;
-			this.Width = width;
-		}
-	}
+			//const int CSV_TASK_ID = 0;
+			//const int CSV_TASK_NAME = 6;
+			//const int CSV_PERSON_NAME = 8;
+			//const int CSV_DELIVERY_DAY = 13;
+			//const int CSV_PROGRESS_RATE = 15;
+			//const int CSV_REMAIMING = 20;
 
+			// ▼初期化中はコントロール使用不可
+			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
+			{
+
+
+				int dicRowCount = 0;
+				for (int column = 0; column < list.Count; column++) {
+
+					string data;
+
+					var dicCell = list[column];
+
+					int cellCount = 0;
+
+					foreach (var cell in dicCell) {
+						bool b2 = dicCell.TryGetValue(cell.Key, out data);
+
+						switch (cell.Key) {
+							case "0":   // "#":   // MAKE_COLUM._TASK_NO:
+										//dataGridView出力.Rows.Add(data);
+								this.DgvProgress.Rows.Add(data);
+								cellCount++;
+								break;
+
+							case "6":   // "題名":  // MAKE_COLUM._TITLE:
+							case "13":  // "期日":  // MAKE_COLUM._DELIVERY:
+							case "15":  // "進捗率": // MAKE_COLUM._PROGRESS:
+								this.DgvProgress.Rows[dicRowCount].Cells[cellCount].Value = data;
+								cellCount++;
+								break;
+
+							case "8":   // "担当者": // MAKE_COLUM._PERSON:
+
+								string name = "未割り当て";
+								if (!data.Equals("\"\"")) {
+									name = data;
+								}
+								this.DgvProgress.Rows[dicRowCount].Cells[cellCount].Value = name;
+								cellCount++;
+								break;
+
+							case "20":  // "残り":  // MAKE_COLUM._REMAINING:
+										//dataGridView出力.Rows[dicRowCount].Cells[cell].Value = setRowData[cell] + "日";
+										//int span = Convert.ToInt32(data);
+										//if (span <= 0) {
+										//	dataGridView出力.Rows[dicRowCount]
+										//		.Cells[(int)MAKE_COLUM._REMAINING].Style.ForeColor = Color.Red;//赤文字
+										//}
+								this.DgvProgress.Rows[dicRowCount].Cells[cellCount].Value = data;
+								cellCount++;
+								break;
+						}
+					}
+					dicRowCount++;
+
+				}
+
+			}
+			// ▲初期化が完了したら送信する
+			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
+
+		}
+
+
+		class NameWidth
+		{
+			public int Width { get; set; }
+			public string Name { get; set; }
+
+			public NameWidth(string name, int width)
+			{
+				this.Name = name;
+				this.Width = width;
+			}
+		}
+
+	}
 }
