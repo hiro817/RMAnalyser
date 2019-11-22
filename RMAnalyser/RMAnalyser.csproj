@@ -46,9 +46,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BaseDGV.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="DGVProgress.cs">
       <SubType>Component</SubType>
     </Compile>

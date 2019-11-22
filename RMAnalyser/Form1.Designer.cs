@@ -76,7 +76,7 @@
 			// 
 			this.groupBox3.Location = new System.Drawing.Point(271, 13);
 			this.groupBox3.Name = "groupBox3";
-			this.groupBox3.Size = new System.Drawing.Size(610, 296);
+			this.groupBox3.Size = new System.Drawing.Size(610, 338);
 			this.groupBox3.TabIndex = 2;
 			this.groupBox3.TabStop = false;
 			this.groupBox3.Text = "groupBox3";
@@ -84,10 +84,10 @@
 			// textBox開発
 			// 
 			this.textBox開発.BackColor = System.Drawing.Color.Wheat;
-			this.textBox開発.Location = new System.Drawing.Point(13, 328);
+			this.textBox開発.Location = new System.Drawing.Point(13, 357);
 			this.textBox開発.Multiline = true;
 			this.textBox開発.Name = "textBox開発";
-			this.textBox開発.Size = new System.Drawing.Size(775, 110);
+			this.textBox開発.Size = new System.Drawing.Size(775, 81);
 			this.textBox開発.TabIndex = 3;
 			// 
 			// Form1

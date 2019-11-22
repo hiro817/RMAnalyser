@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -94,21 +95,15 @@ namespace RMAnalyser
 
 		private void CsvReader()
 		{
-
 			var headerDic = new Dictionary<string, NameWidth>();
-			var dataList = new List<Dictionary<string, string>>();
+			var rowDicList = new List<Dictionary<string, string>>();
 
 			using (StreamReader sr = new StreamReader(this.m_ReadFile, m_Encod)) {
-
 				string line;
-
-				//while ((line = sr.ReadLine()) != null) {
 				for (int row = 0; (line = sr.ReadLine()) != null; row++) {
 					string[] values = line.Split(',');
-
 					// 横ライン分
 					var dataDic = new Dictionary<string, string>();
-
 					for (int column = 0; column < values.Length; column++) {
 						// 必要なデータだけ取り込む
 						if (this.UseCsvTbl[column] == 0) continue;
@@ -129,26 +124,28 @@ namespace RMAnalyser
 					}
 					// 追加項目
 					if (row != 0) {
-
-						dataList.Add(dataDic);
+						rowDicList.Add(dataDic);
 					}
 				}
 			}
 
 			this.DgvProgress = new DGVProgress();
 
+			//this.DgvProgress.Font = new Font("Meiryo UI", 18);
+			this.DgvProgress.Rows.Clear();
+			this.DgvProgress.Columns.Clear();
+
 			MakeProgressGrid(headerDic);
-			MakeCellGrid(dataList);
+			MakeCellGrid(rowDicList);
 		}
 
 		private void MakeProgressGrid(Dictionary<string, NameWidth> headerDic)
 		{
 			// ▼初期化中はコントロール使用不可
-			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
+			//((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
 			{
 				// 左上隅のセルの値
 				this.DgvProgress.TopLeftHeaderCell.Value = "タスク";
-				//this.DgvProgress.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
 				this.DgvProgress.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
 
 				// カラム(ヘッダ)の出力
@@ -161,63 +158,57 @@ namespace RMAnalyser
 				this.groupBox3.Controls.Add(this.DgvProgress);
 				this.DgvProgress.Location = new Point(10, 20);
 
-
-				//this.DgvProgress.RowTemplate.Height = 21;//?
-
 				// 自動でコントロールの四辺にドッキングして適切なサイズに調整される
 				this.DgvProgress.Dock = DockStyle.Fill;
-				//※↓手動の場合
-				//int width = this.groupBox3.Size.Width - 20;
-				//int height = this.groupBox3.Size.Height - 30;
-				//this.DgvProgress.Size = new Size(width, height);
 
 			}
 			// ▲初期化が完了したら送信する
-			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
+			//((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
 		}
 
 
 		private void MakeCellGrid(List<Dictionary<string, string>> list)
 		{
-			//const int CSV_TASK_ID = 0;
-			//const int CSV_TASK_NAME = 6;
-			//const int CSV_PERSON_NAME = 8;
-			//const int CSV_DELIVERY_DAY = 13;
-			//const int CSV_PROGRESS_RATE = 15;
-			//const int CSV_REMAIMING = 20;
-
 			// ▼初期化中はコントロール使用不可
-			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
+			//((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
 			{
-
-
 				int dicRowCount = 0;
 				for (int column = 0; column < list.Count; column++) {
-
+					var dicCell = list[column];
 					string data;
 
-					var dicCell = list[column];
+					// 条件を満たしたタスクだけ表示
+					if (dicCell.TryGetValue(CSV_PERSON_NAME.ToString(), out data)) {
+						if (data == "\"\"") continue;
+					}
+					if (dicCell.TryGetValue(CSV_PROGRESS_RATE.ToString(), out data)) {
+						if (data == "100") continue;
+					}
+					if (dicCell.TryGetValue(CSV_DELIVERY_DAY.ToString(), out data)) {
+						if (data == "\"\"") continue;
+					}
 
 					int cellCount = 0;
 
 					foreach (var cell in dicCell) {
 						bool b2 = dicCell.TryGetValue(cell.Key, out data);
+						int rowIndex = Convert.ToInt32(cell.Key);
 
-						switch (cell.Key) {
-							case "0":   // "#":   // MAKE_COLUM._TASK_NO:
-										//dataGridView出力.Rows.Add(data);
+						switch (rowIndex) {
+							case CSV_TASK_ID:   // "#":   // MAKE_COLUM._TASK_NO:
+												//dataGridView出力.Rows.Add(data);
 								this.DgvProgress.Rows.Add(data);
 								cellCount++;
 								break;
 
-							case "6":   // "題名":  // MAKE_COLUM._TITLE:
-							case "13":  // "期日":  // MAKE_COLUM._DELIVERY:
-							case "15":  // "進捗率": // MAKE_COLUM._PROGRESS:
+							case CSV_TASK_NAME:   // "題名":  // MAKE_COLUM._TITLE:
+							case CSV_DELIVERY_DAY:  // "期日":  // MAKE_COLUM._DELIVERY:
+							case CSV_PROGRESS_RATE:  // "進捗率": // MAKE_COLUM._PROGRESS:
 								this.DgvProgress.Rows[dicRowCount].Cells[cellCount].Value = data;
 								cellCount++;
 								break;
 
-							case "8":   // "担当者": // MAKE_COLUM._PERSON:
+							case CSV_PERSON_NAME:   // "担当者": // MAKE_COLUM._PERSON:
 
 								string name = "未割り当て";
 								if (!data.Equals("\"\"")) {
@@ -227,13 +218,13 @@ namespace RMAnalyser
 								cellCount++;
 								break;
 
-							case "20":  // "残り":  // MAKE_COLUM._REMAINING:
-										//dataGridView出力.Rows[dicRowCount].Cells[cell].Value = setRowData[cell] + "日";
-										//int span = Convert.ToInt32(data);
-										//if (span <= 0) {
-										//	dataGridView出力.Rows[dicRowCount]
-										//		.Cells[(int)MAKE_COLUM._REMAINING].Style.ForeColor = Color.Red;//赤文字
-										//}
+							case CSV_REMAIMING:  // "残り":  // MAKE_COLUM._REMAINING:
+												 //dataGridView出力.Rows[dicRowCount].Cells[cell].Value = setRowData[cell] + "日";
+												 //int span = Convert.ToInt32(data);
+												 //if (span <= 0) {
+												 //	dataGridView出力.Rows[dicRowCount]
+												 //		.Cells[(int)MAKE_COLUM._REMAINING].Style.ForeColor = Color.Red;//赤文字
+												 //}
 								this.DgvProgress.Rows[dicRowCount].Cells[cellCount].Value = data;
 								cellCount++;
 								break;
@@ -245,7 +236,7 @@ namespace RMAnalyser
 
 			}
 			// ▲初期化が完了したら送信する
-			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
+			//((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
 
 		}
 
