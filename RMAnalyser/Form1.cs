@@ -135,111 +135,110 @@ namespace RMAnalyser
 			this.DgvProgress.Rows.Clear();
 			this.DgvProgress.Columns.Clear();
 
+			// ▼初期化中はコントロール使用不可
+			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
+
 			MakeProgressGrid(headerDic);
 			MakeCellGrid(rowDicList);
+
+			// ▲初期化が完了したら送信する
+			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
+
 		}
 
 		private void MakeProgressGrid(Dictionary<string, NameWidth> headerDic)
 		{
-			// ▼初期化中はコントロール使用不可
-			//((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
-			{
-				// 左上隅のセルの値
-				this.DgvProgress.TopLeftHeaderCell.Value = "タスク";
-				this.DgvProgress.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+			// 左上隅のセルの値
+			this.DgvProgress.TopLeftHeaderCell.Value = "タスク";
+			this.DgvProgress.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
 
-				// カラム(ヘッダ)の出力
-				foreach (var h in headerDic) {
-					string name = h.Value.Name;
-					this.DgvProgress.Columns.Add(name, name);
-					this.DgvProgress.Columns[name].Width = h.Value.Width;
-				}
-
-				this.groupBox3.Controls.Add(this.DgvProgress);
-				this.DgvProgress.Location = new Point(10, 20);
-
-				// 自動でコントロールの四辺にドッキングして適切なサイズに調整される
-				this.DgvProgress.Dock = DockStyle.Fill;
-
+			// カラム(ヘッダ)の出力
+			foreach (var h in headerDic) {
+				string name = h.Value.Name;
+				this.DgvProgress.Columns.Add(name, name);
+				this.DgvProgress.Columns[name].Width = h.Value.Width;
 			}
-			// ▲初期化が完了したら送信する
-			//((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
+			// 項目を追加する
+			this.DgvProgress.Columns.Add("残り日数", "残り");
+			this.DgvProgress.Columns["残り日数"].Width = UseCsvTbl[CSV_REMAIMING];
+
+			this.groupBox3.Controls.Add(this.DgvProgress);
+			this.DgvProgress.Location = new Point(10, 20);
+
+			// 自動でコントロールの四辺にドッキングして適切なサイズに調整される
+			this.DgvProgress.Dock = DockStyle.Fill;
 		}
 
 
 		private void MakeCellGrid(List<Dictionary<string, string>> list)
 		{
-			// ▼初期化中はコントロール使用不可
-			//((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
-			{
-				int dicRowCount = 0;
-				for (int column = 0; column < list.Count; column++) {
-					var dicCell = list[column];
-					string data;
+			int dicRowCount = 0;
+			for (int column = 0; column < list.Count; column++) {
+				var dicCell = list[column];
+				string data;
 
-					// 条件を満たしたタスクだけ表示
-					if (dicCell.TryGetValue(CSV_PERSON_NAME.ToString(), out data)) {
-						if (data == "\"\"") continue;
-					}
-					if (dicCell.TryGetValue(CSV_PROGRESS_RATE.ToString(), out data)) {
-						if (data == "100") continue;
-					}
-					if (dicCell.TryGetValue(CSV_DELIVERY_DAY.ToString(), out data)) {
-						if (data == "\"\"") continue;
-					}
-
-					int cellCount = 0;
-
-					foreach (var cell in dicCell) {
-						bool b2 = dicCell.TryGetValue(cell.Key, out data);
-						int rowIndex = Convert.ToInt32(cell.Key);
-
-						switch (rowIndex) {
-							case CSV_TASK_ID:   // "#":   // MAKE_COLUM._TASK_NO:
-												//dataGridView出力.Rows.Add(data);
-								this.DgvProgress.Rows.Add(data);
-								cellCount++;
-								break;
-
-							case CSV_TASK_NAME:   // "題名":  // MAKE_COLUM._TITLE:
-							case CSV_DELIVERY_DAY:  // "期日":  // MAKE_COLUM._DELIVERY:
-							case CSV_PROGRESS_RATE:  // "進捗率": // MAKE_COLUM._PROGRESS:
-								this.DgvProgress.Rows[dicRowCount].Cells[cellCount].Value = data;
-								cellCount++;
-								break;
-
-							case CSV_PERSON_NAME:   // "担当者": // MAKE_COLUM._PERSON:
-
-								string name = "未割り当て";
-								if (!data.Equals("\"\"")) {
-									name = data;
-								}
-								this.DgvProgress.Rows[dicRowCount].Cells[cellCount].Value = name;
-								cellCount++;
-								break;
-
-							case CSV_REMAIMING:  // "残り":  // MAKE_COLUM._REMAINING:
-												 //dataGridView出力.Rows[dicRowCount].Cells[cell].Value = setRowData[cell] + "日";
-												 //int span = Convert.ToInt32(data);
-												 //if (span <= 0) {
-												 //	dataGridView出力.Rows[dicRowCount]
-												 //		.Cells[(int)MAKE_COLUM._REMAINING].Style.ForeColor = Color.Red;//赤文字
-												 //}
-								this.DgvProgress.Rows[dicRowCount].Cells[cellCount].Value = data;
-								cellCount++;
-								break;
-						}
-					}
-					dicRowCount++;
-
+				// 条件を満たしたタスクだけ表示
+				if (dicCell.TryGetValue(CSV_PERSON_NAME.ToString(), out data)) {
+					if (data == "\"\"") continue;
+				}
+				if (dicCell.TryGetValue(CSV_PROGRESS_RATE.ToString(), out data)) {
+					if (data == "100") continue;
+				}
+				if (dicCell.TryGetValue(CSV_DELIVERY_DAY.ToString(), out data)) {
+					if (data == "\"\"") continue;
 				}
 
+				// 残り日数の算出と追加
+				dicCell.Add(CSV_REMAIMING.ToString(), "11");
+
+
+				int cellCount = 0;
+				foreach (var cell in dicCell) {
+					bool b2 = dicCell.TryGetValue(cell.Key, out data);
+					int rowIndex = Convert.ToInt32(cell.Key);
+
+					switch (rowIndex) {
+						case CSV_TASK_ID:   // "#":   // MAKE_COLUM._TASK_NO:
+							this.DgvProgress.Rows.Add(data);
+							cellCount++;
+							break;
+
+						case CSV_TASK_NAME:     // "題名":  // MAKE_COLUM._TITLE:
+						case CSV_DELIVERY_DAY:  // "期日":  // MAKE_COLUM._DELIVERY:
+							this.DgvProgress.Rows[dicRowCount].Cells[cellCount].Value = data;
+							cellCount++;
+							break;
+
+						case CSV_PROGRESS_RATE: // "進捗率": // MAKE_COLUM._PROGRESS:
+							this.DgvProgress.Rows[dicRowCount].Cells[cellCount].Value = data + "%";
+							cellCount++;
+							break;
+
+						case CSV_PERSON_NAME:   // "担当者": // MAKE_COLUM._PERSON:
+
+							string name = "未割り当て";
+							if (!data.Equals("\"\"")) {
+								name = data;
+							}
+							this.DgvProgress.Rows[dicRowCount].Cells[cellCount].Value = name;
+							cellCount++;
+							break;
+
+						case CSV_REMAIMING:  // "残り":  // MAKE_COLUM._REMAINING:
+											 //dataGridView出力.Rows[dicRowCount].Cells[cell].Value = setRowData[cell] + "日";
+											 //int span = Convert.ToInt32(data);
+											 //if (span <= 0) {
+											 //	dataGridView出力.Rows[dicRowCount]
+											 //		.Cells[(int)MAKE_COLUM._REMAINING].Style.ForeColor = Color.Red;//赤文字
+											 //}
+							this.DgvProgress.Rows[dicRowCount].Cells[cellCount].Value = data + "日";
+							cellCount++;
+							break;
+					}
+				}
+				dicRowCount++;
 			}
-			// ▲初期化が完了したら送信する
-			//((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
-
 		}
-
 
 		class NameWidth
 		{
