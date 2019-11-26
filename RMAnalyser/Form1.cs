@@ -22,10 +22,15 @@ namespace RMAnalyser
 
 			this.Text = "RedAnalyser Ver." + Version;
 
+
 			this.DgvProgress = new DGVProgress();
+			// ▼初期化中はコントロール使用不可
+			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
+			this.DgvProgress.Init();
 			// 左ヘッダをなくする(行番号を付けるイベントハンドラも削除すること)
 			this.DgvProgress.RowHeadersVisible = false;
-
+			// ▲初期化が完了したら送信する
+			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
 		}
 
 		private void Form1_DragEnter(object sender, DragEventArgs e)
@@ -136,15 +141,8 @@ namespace RMAnalyser
 			this.DgvProgress.Rows.Clear();
 			this.DgvProgress.Columns.Clear();
 
-			// ▼初期化中はコントロール使用不可
-			//((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
-
 			MakeProgressGrid(headerDic);
 			MakeCellGrid(rowDicList);
-
-			// ▲初期化が完了したら送信する
-			//((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
-
 		}
 
 		private void MakeProgressGrid(Dictionary<string, NameWidth> headerDic)
