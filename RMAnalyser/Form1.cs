@@ -162,6 +162,12 @@ namespace RMAnalyser
 			this.DgvProgress.Columns.Add("残り日数", "残り");
 			this.DgvProgress.Columns["残り日数"].Width = UseCsvTbl[CSV_REMAIMING];
 
+			var progressBar = new DataGridViewProgressBarColumn();
+			progressBar.DataPropertyName = "Progress";
+			this.DgvProgress.Columns.Add(progressBar);
+
+
+
 			this.groupBox3.Controls.Add(this.DgvProgress);
 			this.DgvProgress.Location = new Point(10, 20);
 

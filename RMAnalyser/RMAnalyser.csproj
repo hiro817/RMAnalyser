@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataGridViewProgressBarColumn.cs" />
     <Compile Include="DGVProgress.cs">
       <SubType>Component</SubType>
     </Compile>
