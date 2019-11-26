@@ -21,6 +21,11 @@ namespace RMAnalyser
 			InitializeComponent();
 
 			this.Text = "RedAnalyser Ver." + Version;
+
+			this.DgvProgress = new DGVProgress();
+			// 左ヘッダをなくする(行番号を付けるイベントハンドラも削除すること)
+			this.DgvProgress.RowHeadersVisible = false;
+
 		}
 
 		private void Form1_DragEnter(object sender, DragEventArgs e)
@@ -111,7 +116,6 @@ namespace RMAnalyser
 						// ヘッダ
 						if (row == 0) {
 							// データから取り込んでヘッダを作成
-							//m_HeaderNameWidth.Add(new HeaderNameWidth(this.NecessaryCsvTbl[column], values[column], column.ToString()));
 							var nameWidth = new NameWidth(values[column], this.UseCsvTbl[column]);
 							headerDic.Add(column.ToString(), nameWidth);
 						}
@@ -129,20 +133,17 @@ namespace RMAnalyser
 				}
 			}
 
-			this.DgvProgress = new DGVProgress();
-
-			//this.DgvProgress.Font = new Font("Meiryo UI", 18);
 			this.DgvProgress.Rows.Clear();
 			this.DgvProgress.Columns.Clear();
 
 			// ▼初期化中はコントロール使用不可
-			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
+			//((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
 
 			MakeProgressGrid(headerDic);
 			MakeCellGrid(rowDicList);
 
 			// ▲初期化が完了したら送信する
-			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
+			//((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
 
 		}
 
@@ -195,8 +196,7 @@ namespace RMAnalyser
 				}
 
 				// 残り日数の算出と追加
-				dicCell.Add(CSV_REMAIMING.ToString(), "11");
-
+				dicCell.Add(CSV_REMAIMING.ToString(), "99");
 
 				int cellCount = 0;
 				foreach (var cell in dicCell) {
