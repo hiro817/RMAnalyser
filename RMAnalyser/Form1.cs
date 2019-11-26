@@ -199,9 +199,13 @@ namespace RMAnalyser
 				int cellCount = 0;
 				foreach (var cell in dicCell) {
 					bool b2 = dicCell.TryGetValue(cell.Key, out data);
-					int rowIndex = Convert.ToInt32(cell.Key);
+					if (!b2) {
+						MessageBox.Show("データが読込めない");
+						continue;
+					}
+					//int rowIndex = Convert.ToInt32(cell.Key);
 
-					switch (rowIndex) {
+					switch (Convert.ToInt32(cell.Key)) {
 						case CSV_TASK_ID:   // "#":   // MAKE_COLUM._TASK_NO:
 							this.DgvProgress.Rows.Add(data);
 							cellCount++;
@@ -229,13 +233,19 @@ namespace RMAnalyser
 							break;
 
 						case CSV_REMAIMING:  // "残り":  // MAKE_COLUM._REMAINING:
-											 //dataGridView出力.Rows[dicRowCount].Cells[cell].Value = setRowData[cell] + "日";
-											 //int span = Convert.ToInt32(data);
-											 //if (span <= 0) {
-											 //	dataGridView出力.Rows[dicRowCount]
-											 //		.Cells[(int)MAKE_COLUM._REMAINING].Style.ForeColor = Color.Red;//赤文字
-											 //}
-							this.DgvProgress.Rows[dicRowCount].Cells[cellCount].Value = data + "日";
+							DateTime dTime = DateTime.Parse(dicCell[CSV_DELIVERY_DAY.ToString()]);
+							// 時間なしの今日の日にち
+							DateTime dNow = DateTime.Now.Date;
+
+							//string day;
+							//bool b3 = dicCell.TryGetValue("CSV_DELIVERY_DAY", out day);
+							TimeSpan span = dTime - dNow;
+
+							if (span.Days <= 0) {
+								this.DgvProgress.Rows[dicRowCount]
+									.Cells[(int)MAKE_COLUM._REMAINING].Style.ForeColor = Color.Red;//赤文字
+							}
+							this.DgvProgress.Rows[dicRowCount].Cells[cellCount].Value = span.Days.ToString() + "日";
 							cellCount++;
 							break;
 					}
