@@ -24,6 +24,9 @@ namespace RMAnalyser
 
 			this.Text = "RedAnalyser Ver." + Version;
 
+			this.label情報.Text = "CSVファイルをドラッグ＆ドロップしてください";
+
+			this.groupBox1.Text = "読み込みCSVファイル";
 			this.groupBox2.Text = "担当者別タスク";
 			this.groupBox3.Text = "納期別タスク";
 
@@ -103,6 +106,7 @@ namespace RMAnalyser
 			if (this.m_ReadFile != "") {
 				this.label情報.Text = "";
 				textBoxファイル名.Text = Path.GetFileName(this.m_ReadFile);// 拡張子ありのファイル名
+				this.label情報.Text = "";
 
 				CsvReader();
 			}

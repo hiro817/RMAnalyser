@@ -57,6 +57,7 @@
 			// label情報
 			// 
 			this.label情報.AutoSize = true;
+			this.label情報.ForeColor = System.Drawing.Color.Red;
 			this.label情報.Location = new System.Drawing.Point(7, 39);
 			this.label情報.Name = "label情報";
 			this.label情報.Size = new System.Drawing.Size(35, 12);
