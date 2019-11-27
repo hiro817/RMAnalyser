@@ -15,6 +15,8 @@ namespace RMAnalyser
 		readonly Encoding m_Encod = Encoding.GetEncoding("Shift_JIS");
 
 		private DGVProgress DgvProgress;
+		private DGVProgress DgvMember;
+
 
 		public Form1()
 		{
@@ -22,8 +24,19 @@ namespace RMAnalyser
 
 			this.Text = "RedAnalyser Ver." + Version;
 
+			this.groupBox2.Text = "担当者別タスク";
+			this.groupBox3.Text = "納期別タスク";
 
+			ProgressGridInit();
+			MemberGridInit();
+
+		}
+
+		private void ProgressGridInit()
+		{
 			this.DgvProgress = new DGVProgress();
+			this.DgvProgress.Init();
+
 			// ▼初期化中はコントロール使用不可
 			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
 			this.DgvProgress.Init();
@@ -32,6 +45,39 @@ namespace RMAnalyser
 			// ▲初期化が完了したら送信する
 			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
 		}
+
+		private void MemberGridInit()
+		{
+
+			this.DgvMember = new DGVProgress();
+			this.DgvMember.Init();
+
+			// 左上隅のセルの値
+			this.DgvMember.TopLeftHeaderCell.Value = "担当";
+			this.DgvMember.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+
+			// カラム(ヘッダ)の出力
+			this.DgvMember.Columns.Add("担当者", "担当者");
+			this.DgvMember.Columns["担当者"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			this.DgvMember.Columns["担当者"].Width = UseCsvTbl[(int)CSV_PERSON_NAME];
+
+			this.DgvMember.Columns.Add("タスク数", "数");
+			this.DgvMember.Columns["タスク数"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+			this.DgvMember.Columns["タスク数"].Width = 30;// NecessaryCsvTbl[(int)CSV_PROGRESS_RATE];
+			this.DgvMember.Columns["タスク数"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+			this.DgvMember.Columns.Add("平均進捗率", "平均");
+			this.DgvMember.Columns["平均進捗率"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+			this.DgvMember.Columns["平均進捗率"].Width = UseCsvTbl[(int)CSV_PROGRESS_RATE];
+			this.DgvMember.Columns["平均進捗率"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+			// GroupBoxに追加する位置を設定
+			this.groupBox2.Controls.Add(this.DgvMember);
+			this.DgvMember.Location = new Point(10, 20);
+			// 自動でコントロールの四辺にドッキングして適切なサイズに調整される
+			this.DgvMember.Dock = DockStyle.Fill;
+		}
+
 
 		private void Form1_DragEnter(object sender, DragEventArgs e)
 		{
@@ -110,6 +156,8 @@ namespace RMAnalyser
 			var headerDic = new Dictionary<string, NameWidth>();
 			var rowDicList = new List<Dictionary<string, string>>();
 
+			PersonsTask personsTask = new PersonsTask();
+
 			using (StreamReader sr = new StreamReader(this.m_ReadFile, m_Encod)) {
 				string line;
 				for (int row = 0; (line = sr.ReadLine()) != null; row++) {
@@ -131,6 +179,17 @@ namespace RMAnalyser
 							string value = values[column];
 							dataDic.Add(column.ToString(), value);
 
+							#region 担当者別の進捗情報の取得
+							string progressName = (values[CSV_PERSON_NAME] != "\"\"") ?
+								values[CSV_PERSON_NAME] : "(未割り当て)";
+
+							int rate = Convert.ToInt32(values[CSV_PROGRESS_RATE]);
+							if (!personsTask.IsNewPerson(progressName, rate))
+							{
+								personsTask.AddProgress(progressName, rate);
+							}
+							#endregion
+
 						}
 					}
 					// 追加項目
@@ -143,8 +202,13 @@ namespace RMAnalyser
 			this.DgvProgress.Rows.Clear();
 			this.DgvProgress.Columns.Clear();
 
+			this.DgvMember.Rows.Clear();
+
 			MakeProgressGrid(headerDic);
 			MakeCellGrid(rowDicList);
+
+			MakePersonTaskGrid(personsTask);
+
 		}
 
 		private void MakeProgressGrid(Dictionary<string, NameWidth> headerDic)
@@ -154,7 +218,8 @@ namespace RMAnalyser
 			this.DgvProgress.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
 
 			// カラム(ヘッダ)の出力
-			foreach (var h in headerDic) {
+			foreach (var h in headerDic)
+			{
 				string name = h.Value.Name;
 				this.DgvProgress.Columns.Add(name, name);
 				this.DgvProgress.Columns[name].Width = h.Value.Width;
@@ -178,7 +243,6 @@ namespace RMAnalyser
 			// 自動でコントロールの四辺にドッキングして適切なサイズに調整される
 			this.DgvProgress.Dock = DockStyle.Fill;
 		}
-
 
 		private void MakeCellGrid(List<Dictionary<string, string>> list)
 		{
@@ -267,6 +331,26 @@ namespace RMAnalyser
 				dicRowCount++;
 			}
 		}
+
+		private void MakePersonTaskGrid(PersonsTask personTask)
+		{
+
+			int row = 0;
+			foreach (var pt in personTask.NameDic)
+			{
+				string name = pt.Key;
+				this.DgvMember.Rows.Add(name);  // 0
+
+				this.DgvMember.Rows[row].Cells[1].Value = pt.Value.Count.ToString();
+
+				this.DgvMember.Rows[row].Cells[2].Value = personTask.GetAverageProgress(name).ToString("F1") + "%";
+
+				row++;
+
+			}
+
+		}
+
 
 		class NameWidth
 		{
