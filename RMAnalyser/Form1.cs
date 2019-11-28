@@ -31,7 +31,7 @@ namespace RMAnalyser
 			this.groupBox1.Text = "読み込みCSVファイル";
 			this.groupBox2.Text = "担当者別タスク";
 			this.groupBox3.Text = "タスク進捗情報";
-			this.groupBox4.Text = "期日未設定一覧";
+			this.groupBox4.Text = "期日未定";
 
 			ProgressGridInit();
 			MemberGridInit();
@@ -41,21 +41,19 @@ namespace RMAnalyser
 
 		private void ProgressGridInit()
 		{
-			this.DgvProgress.Init();
-
 			// ▼初期化中はコントロール使用不可
 			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
 
-			this.DgvProgress.Init();
+			this.DgvProgress.Init(this.groupBox3);
 
-			// GroupBoxに追加する位置を設定
-			this.groupBox3.Controls.Add(this.DgvProgress);
-			this.DgvProgress.Location = new Point(10, 20);
-			// 自動でコントロールの四辺にドッキングして適切なサイズに調整される
-			this.DgvProgress.Dock = DockStyle.Fill;
-
+			// 左上隅のセルの値
+			this.DgvProgress.TopLeftHeaderCell.Value = "タスク";
+			this.DgvProgress.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
 			// 左ヘッダをなくする(行番号を付けるイベントハンドラも削除すること)
 			this.DgvProgress.RowHeadersVisible = false;
+
+			// 自動でコントロールの四辺にドッキングして適切なサイズに調整される
+			this.DgvProgress.Dock = DockStyle.Fill;
 
 			// ▲初期化が完了したら送信する
 			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
@@ -66,17 +64,17 @@ namespace RMAnalyser
 			// ▼初期化中はコントロール使用不可
 			((System.ComponentModel.ISupportInitialize)(this.DgvMember)).BeginInit();
 
-			this.DgvMember.Init();
+			this.DgvMember.Init(this.groupBox2);
 
-			// GroupBoxに追加する位置を設定
-			this.groupBox2.Controls.Add(this.DgvMember);
-			this.DgvMember.Location = new Point(10, 20);
 			// 自動でコントロールの四辺にドッキングして適切なサイズに調整される
 			this.DgvMember.Dock = DockStyle.Fill;
 
 			// 左上隅のセルの値
 			this.DgvMember.TopLeftHeaderCell.Value = "担当";
 			this.DgvMember.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+
+
+
 
 			// カラム(ヘッダ)の出力
 			this.DgvMember.Columns.Add("担当者", "担当者");
@@ -102,12 +100,15 @@ namespace RMAnalyser
 			// ▼初期化中はコントロール使用不可
 			((System.ComponentModel.ISupportInitialize)(this.DgvNoLimitTask)).BeginInit();
 
-			this.groupBox4.Controls.Add(this.DgvNoLimitTask);
-			this.DgvNoLimitTask.Location = new Point(10, 20);
+			this.DgvNoLimitTask.Init(this.groupBox4);
 
-			this.DgvNoLimitTask.Init();
 			// 左ヘッダをなくする(行番号を付けるイベントハンドラも削除すること)
 			//this.DgvNoLimitTask.RowHeadersVisible = false;
+
+			// 左上隅のセルの値
+			this.DgvNoLimitTask.TopLeftHeaderCell.Value = "期日未定";
+			this.DgvNoLimitTask.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+
 
 
 			// ▲初期化が完了したら送信する
@@ -245,10 +246,6 @@ namespace RMAnalyser
 		{
 			this.DgvProgress.Rows.Clear();
 			this.DgvProgress.Columns.Clear();
-
-			// 左上隅のセルの値
-			this.DgvProgress.TopLeftHeaderCell.Value = "タスク";
-			this.DgvProgress.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
 
 			// カラム(ヘッダ)の出力
 			foreach (var h in headerDic) {

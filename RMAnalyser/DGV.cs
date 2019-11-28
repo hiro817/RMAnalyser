@@ -14,8 +14,10 @@ namespace RMAnalyser
 		{
 		}
 
-		public void Init()
+		public void Init(GroupBox gbox)
 		{
+			gbox.Controls.Add(this);
+
 			Font = new Font("Meiryo UI", 8);
 
 			// セルの編集不可
@@ -36,6 +38,9 @@ namespace RMAnalyser
 
 			// 新しい行の追加不可に設定
 			AllowUserToAddRows = false;
+
+			this.Location = new Point(10, 20);
+
 		}
 	}
 }
