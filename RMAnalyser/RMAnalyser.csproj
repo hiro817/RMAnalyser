@@ -47,7 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataGridViewProgressBarColumn.cs" />
-    <Compile Include="DGVProgress.cs">
+    <Compile Include="DGV.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Form1.cs">

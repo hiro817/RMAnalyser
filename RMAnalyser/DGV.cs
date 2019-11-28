@@ -8,9 +8,9 @@ using System.Windows.Forms;
 
 namespace RMAnalyser
 {
-	class DGVProgress : DataGridView
+	class DGV : DataGridView
 	{
-		public DGVProgress() : base()
+		public DGV() : base()
 		{
 		}
 

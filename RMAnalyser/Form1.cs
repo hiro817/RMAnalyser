@@ -14,9 +14,11 @@ namespace RMAnalyser
 		private string m_ReadFile;
 		readonly Encoding m_Encod = Encoding.GetEncoding("Shift_JIS");
 
-		private DGVProgress DgvProgress;
-		private DGVProgress DgvMember;
+		private DGV DgvProgress = new DGV();
+		private DGV DgvMember = new DGV();
+		private DGV DgvNoLimitTask = new DGV();
 
+		private readonly string Nobady = "(未割り当て)";
 
 		public Form1()
 		{
@@ -28,31 +30,39 @@ namespace RMAnalyser
 
 			this.groupBox1.Text = "読み込みCSVファイル";
 			this.groupBox2.Text = "担当者別タスク";
-			this.groupBox3.Text = "納期別タスク";
+			this.groupBox3.Text = "タスク進捗情報";
+			this.groupBox4.Text = "期日未設定一覧";
 
 			ProgressGridInit();
 			MemberGridInit();
+			NoLimitTaskGridInit();
 
 		}
 
 		private void ProgressGridInit()
 		{
-			this.DgvProgress = new DGVProgress();
 			this.DgvProgress.Init();
 
 			// ▼初期化中はコントロール使用不可
 			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
+
 			this.DgvProgress.Init();
+
+			// GroupBoxに追加する位置を設定
+			this.groupBox3.Controls.Add(this.DgvProgress);
+			this.DgvProgress.Location = new Point(10, 20);
+			// 自動でコントロールの四辺にドッキングして適切なサイズに調整される
+			this.DgvProgress.Dock = DockStyle.Fill;
+
 			// 左ヘッダをなくする(行番号を付けるイベントハンドラも削除すること)
 			this.DgvProgress.RowHeadersVisible = false;
+
 			// ▲初期化が完了したら送信する
 			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
 		}
 
 		private void MemberGridInit()
 		{
-			this.DgvMember = new DGVProgress();
-
 			// ▼初期化中はコントロール使用不可
 			((System.ComponentModel.ISupportInitialize)(this.DgvMember)).BeginInit();
 
@@ -85,6 +95,23 @@ namespace RMAnalyser
 
 			// ▲初期化が完了したら送信する
 			((System.ComponentModel.ISupportInitialize)(this.DgvMember)).EndInit();
+		}
+
+		private void NoLimitTaskGridInit()
+		{
+			// ▼初期化中はコントロール使用不可
+			((System.ComponentModel.ISupportInitialize)(this.DgvNoLimitTask)).BeginInit();
+
+			this.groupBox4.Controls.Add(this.DgvNoLimitTask);
+			this.DgvNoLimitTask.Location = new Point(10, 20);
+
+			this.DgvNoLimitTask.Init();
+			// 左ヘッダをなくする(行番号を付けるイベントハンドラも削除すること)
+			//this.DgvNoLimitTask.RowHeadersVisible = false;
+
+
+			// ▲初期化が完了したら送信する
+			((System.ComponentModel.ISupportInitialize)(this.DgvNoLimitTask)).EndInit();
 		}
 
 		private void Form1_DragEnter(object sender, DragEventArgs e)
@@ -174,25 +201,23 @@ namespace RMAnalyser
 					// 横ライン分
 					var dataDic = new Dictionary<string, string>();
 					for (int column = 0; column < values.Length; column++) {
-						// 必要なデータだけ取り込む
 						if (this.UseCsvTbl[column] == 0) continue;
 
-						// ヘッダ
+						// ヘッダの取得
 						if (row == 0) {
 							// データから取り込んでヘッダを作成
 							var nameWidth = new NameWidth(values[column], this.UseCsvTbl[column]);
 							headerDic.Add(column.ToString(), nameWidth);
 						}
-						// 本体
+						// 本体データの取得
 						else {
-							string value = values[column];
-							dataDic.Add(column.ToString(), value);
+							dataDic.Add(column.ToString(), values[column]);
 
 							#region 担当者別の進捗情報の取得
-
-							string progressName = (values[CSV_PERSON_NAME] != "\"\"") ?
-								values[CSV_PERSON_NAME] : "(未割り当て)";
-
+							string progressName = this.Nobady;
+							if (values[CSV_PERSON_NAME] != "\"\"") {
+								progressName = values[CSV_PERSON_NAME];
+							}
 							int rate = Convert.ToInt32(values[CSV_PROGRESS_RATE]);
 							if (!personsTask.IsNewPerson(progressName, rate)) {
 								personsTask.AddProgress(progressName, rate);
@@ -208,10 +233,6 @@ namespace RMAnalyser
 				}
 			}
 
-			this.DgvProgress.Rows.Clear();
-			this.DgvProgress.Columns.Clear();
-
-			this.DgvMember.Rows.Clear();
 
 			MakeProgressHeader(headerDic);
 			MakeProgressRow(rowDicList);
@@ -222,12 +243,8 @@ namespace RMAnalyser
 
 		private void MakeProgressHeader(Dictionary<string, NameWidth> headerDic)
 		{
-			// GroupBoxに追加する位置を設定
-			this.groupBox3.Controls.Add(this.DgvProgress);
-			this.DgvProgress.Location = new Point(10, 20);
-			// 自動でコントロールの四辺にドッキングして適切なサイズに調整される
-			this.DgvProgress.Dock = DockStyle.Fill;
-
+			this.DgvProgress.Rows.Clear();
+			this.DgvProgress.Columns.Clear();
 
 			// 左上隅のセルの値
 			this.DgvProgress.TopLeftHeaderCell.Value = "タスク";
@@ -271,14 +288,11 @@ namespace RMAnalyser
 					if (data == "\"\"") continue;
 				}
 
-				// 残り日数の算出と追加
-				//dicCell.Add(CSV_REMAIMING.ToString(), "99");
+				// 残り日数の追加
 				dicCell.Add(CSV_REMAIMING.ToString(), UseCsvTbl[CSV_REMAIMING].ToString());
 
-
-				//dicCell.Add(CSV_PROGRESS_BAR.ToString(), "60");
+				// プログレスバーの追加
 				dicCell.Add(CSV_PROGRESS_BAR.ToString(), UseCsvTbl[CSV_PROGRESS_BAR].ToString());
-
 
 				int cellCount = 0;
 				foreach (var cell in dicCell) {
@@ -303,21 +317,19 @@ namespace RMAnalyser
 							break;
 
 						case CSV_PERSON_NAME:   // "担当者": // MAKE_COLUM._PERSON:
-
-							string name = "未割り当て";
-							if (!data.Equals("\"\"")) {
-								name = data;
-							}
-							SetCell(name);
+							//※上記で弾かれているため下記は不要になる
+							//string name = this.Nobady;
+							//if (!data.Equals("\"\"")) {
+							//	name = data;
+							//}
+							//SetCell(name);
+							SetCell(data);
 							break;
 
 						case CSV_REMAIMING:  // "残り":  // MAKE_COLUM._REMAINING:
-											 // 時間なしの今日
-							DateTime dNow = DateTime.Now.Date;
-
+							DateTime dNow = DateTime.Now.Date;	// 時間なしの今日
 							DateTime dTime = DateTime.Parse(dicCell[CSV_DELIVERY_DAY.ToString()]);
 							TimeSpan span = dTime - dNow;
-
 							if (span.Days <= 0) {
 								this.DgvProgress.Rows[dicRowCount]
 									.Cells[(int)MAKE_COLUM._REMAINING].Style.ForeColor = Color.Red;//赤文字
@@ -343,27 +355,33 @@ namespace RMAnalyser
 
 				}
 				dicRowCount++;
+
 			}
 		}
 
 		private void MakePersonTaskGrid(PersonsTask personTask)
 		{
+			this.DgvMember.Rows.Clear();
 
+#if true
 			int row = 0;
 			foreach (var pt in personTask.NameDic) {
 				string name = pt.Key;
-				this.DgvMember.Rows.Add(name);  // 0
-
+				this.DgvMember.Rows.Add(name);
 				this.DgvMember.Rows[row].Cells[1].Value = pt.Value.Count.ToString();
-
 				this.DgvMember.Rows[row].Cells[2].Value = personTask.GetAverageProgress(name).ToString("F1") + "%";
-
 				row++;
-
 			}
-
+#else
+			for (int row = 0; row < personTask.NameDic.Count; row++) {
+				var pt = personTask.NameDic.ElementAt(row);//※多分これが一番遅い
+				string name = pt.Key;
+				this.DgvMember.Rows.Add(name);
+				this.DgvMember.Rows[row].Cells[1].Value = pt.Value.Count.ToString();
+				this.DgvMember.Rows[row].Cells[2].Value = personTask.GetAverageProgress(name).ToString("F1") + "%";
+			}
+#endif
 		}
-
 
 		class NameWidth
 		{
