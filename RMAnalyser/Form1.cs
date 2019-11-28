@@ -44,16 +44,7 @@ namespace RMAnalyser
 			// ▼初期化中はコントロール使用不可
 			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
 
-			this.DgvProgress.Init(this.groupBox3);
-
-			// 左上隅のセルの値
-			this.DgvProgress.TopLeftHeaderCell.Value = "タスク";
-			this.DgvProgress.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-			// 左ヘッダをなくする(行番号を付けるイベントハンドラも削除すること)
-			this.DgvProgress.RowHeadersVisible = false;
-
-			// 自動でコントロールの四辺にドッキングして適切なサイズに調整される
-			this.DgvProgress.Dock = DockStyle.Fill;
+			this.DgvProgress.Init(this.groupBox3, "");
 
 			// ▲初期化が完了したら送信する
 			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
@@ -64,17 +55,7 @@ namespace RMAnalyser
 			// ▼初期化中はコントロール使用不可
 			((System.ComponentModel.ISupportInitialize)(this.DgvMember)).BeginInit();
 
-			this.DgvMember.Init(this.groupBox2);
-
-			// 自動でコントロールの四辺にドッキングして適切なサイズに調整される
-			this.DgvMember.Dock = DockStyle.Fill;
-
-			// 左上隅のセルの値
-			this.DgvMember.TopLeftHeaderCell.Value = "担当";
-			this.DgvMember.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-
-
-
+			this.DgvMember.Init(this.groupBox2, "担当");
 
 			// カラム(ヘッダ)の出力
 			this.DgvMember.Columns.Add("担当者", "担当者");
@@ -100,16 +81,13 @@ namespace RMAnalyser
 			// ▼初期化中はコントロール使用不可
 			((System.ComponentModel.ISupportInitialize)(this.DgvNoLimitTask)).BeginInit();
 
-			this.DgvNoLimitTask.Init(this.groupBox4);
-
-			// 左ヘッダをなくする(行番号を付けるイベントハンドラも削除すること)
-			//this.DgvNoLimitTask.RowHeadersVisible = false;
-
-			// 左上隅のセルの値
-			this.DgvNoLimitTask.TopLeftHeaderCell.Value = "期日未定";
-			this.DgvNoLimitTask.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+			this.DgvNoLimitTask.Init(this.groupBox4, "");
 
 
+			// カラム(ヘッダ)の出力
+			this.DgvNoLimitTask.Columns.Add("担当者", "担当者");
+			this.DgvNoLimitTask.Columns["担当者"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			this.DgvNoLimitTask.Columns["担当者"].Width = UseCsvTbl[(int)CSV_PERSON_NAME];
 
 			// ▲初期化が完了したら送信する
 			((System.ComponentModel.ISupportInitialize)(this.DgvNoLimitTask)).EndInit();
