@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
@@ -12,13 +11,16 @@ namespace RMAnalyser
 	{
 		private readonly string Version = "1.00";
 		private string m_ReadFile;
-		readonly Encoding m_Encod = Encoding.GetEncoding("Shift_JIS");
+		private readonly Encoding m_Encod = Encoding.GetEncoding("Shift_JIS");
 
 		private DGV DgvProgress = new DGV();
 		private DGV DgvMember = new DGV();
 		private DGV DgvNoLimitTask = new DGV();
 
+		private List<Dictionary<string, string>> NoLimitList = new List<Dictionary<string, string>>();
+
 		private readonly string Nobady = "(未割り当て)";
+
 
 		public Form1()
 		{
@@ -36,7 +38,6 @@ namespace RMAnalyser
 			ProgressGridInit();
 			MemberGridInit();
 			NoLimitTaskGridInit();
-
 		}
 
 		private void ProgressGridInit()
@@ -83,11 +84,20 @@ namespace RMAnalyser
 
 			this.DgvNoLimitTask.Init(this.groupBox4, "");
 
-
 			// カラム(ヘッダ)の出力
+			this.DgvNoLimitTask.Columns.Add("#", "#");
+			this.DgvNoLimitTask.Columns["#"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			this.DgvNoLimitTask.Columns["#"].Width = UseCsvTbl[(int)CSV_TASK_ID];
+
 			this.DgvNoLimitTask.Columns.Add("担当者", "担当者");
 			this.DgvNoLimitTask.Columns["担当者"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 			this.DgvNoLimitTask.Columns["担当者"].Width = UseCsvTbl[(int)CSV_PERSON_NAME];
+
+
+			this.DgvNoLimitTask.Columns.Add("題名", "題名");
+			this.DgvNoLimitTask.Columns["題名"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			this.DgvNoLimitTask.Columns["題名"].Width = UseCsvTbl[(int)CSV_TASK_NAME];
+
 
 			// ▲初期化が完了したら送信する
 			((System.ComponentModel.ISupportInitialize)(this.DgvNoLimitTask)).EndInit();
@@ -123,7 +133,7 @@ namespace RMAnalyser
 			}
 		}
 
-		readonly int[] UseCsvTbl = {
+		private readonly int[] UseCsvTbl = {
 			45,		// 00 #(ID)		★CSV_TASK_ID
 			0,		// 01 プロジェクト
 			0,		// 02 トラッカー
@@ -148,15 +158,16 @@ namespace RMAnalyser
 			54,		// 20 残り日数	★CSV_REMAIMING
 			75,		// 21 プログレスバー	★CSV_PROGRESS_BAR
 		};
-		const int CSV_TASK_ID = 0;
-		const int CSV_TASK_NAME = 6;
-		const int CSV_PERSON_NAME = 8;
-		const int CSV_DELIVERY_DAY = 13;
-		const int CSV_PROGRESS_RATE = 15;
-		const int CSV_REMAIMING = 20;
-		const int CSV_PROGRESS_BAR = 21;
 
-		enum MAKE_COLUM
+		private const int CSV_TASK_ID = 0;
+		private const int CSV_TASK_NAME = 6;
+		private const int CSV_PERSON_NAME = 8;
+		private const int CSV_DELIVERY_DAY = 13;
+		private const int CSV_PROGRESS_RATE = 15;
+		private const int CSV_REMAIMING = 20;
+		private const int CSV_PROGRESS_BAR = 21;
+
+		private enum MAKE_COLUM
 		{
 			_TASK_NO = 0,
 			_TITLE,
@@ -170,8 +181,7 @@ namespace RMAnalyser
 		{
 			var headerDic = new Dictionary<string, NameWidth>();
 			var rowDicList = new List<Dictionary<string, string>>();
-
-			PersonsTask personsTask = new PersonsTask();
+			var personsTask = new PersonsTask();
 
 			using (StreamReader sr = new StreamReader(this.m_ReadFile, m_Encod)) {
 				string line;
@@ -193,6 +203,7 @@ namespace RMAnalyser
 							dataDic.Add(column.ToString(), values[column]);
 
 							#region 担当者別の進捗情報の取得
+
 							string progressName = this.Nobady;
 							if (values[CSV_PERSON_NAME] != "\"\"") {
 								progressName = values[CSV_PERSON_NAME];
@@ -201,8 +212,8 @@ namespace RMAnalyser
 							if (!personsTask.IsNewPerson(progressName, rate)) {
 								personsTask.AddProgress(progressName, rate);
 							}
-							#endregion
 
+							#endregion 担当者別の進捗情報の取得
 						}
 					}
 					// 追加項目
@@ -212,11 +223,11 @@ namespace RMAnalyser
 				}
 			}
 
-
 			MakeProgressHeader(headerDic);
 			MakeProgressRow(rowDicList);
 
 			MakePersonTaskGrid(personsTask);
+			MakeNoLimitTaskGrid();
 
 		}
 
@@ -231,6 +242,7 @@ namespace RMAnalyser
 				this.DgvProgress.Columns.Add(name, name);
 				this.DgvProgress.Columns[name].Width = h.Value.Width;
 			}
+
 			// 「残り日数」項目を追加
 			this.DgvProgress.Columns.Add("残り日数", "残り");
 			this.DgvProgress.Columns["残り日数"].Width = UseCsvTbl[CSV_REMAIMING];
@@ -242,14 +254,14 @@ namespace RMAnalyser
 			progressBar.Name = "Progress";
 			this.DgvProgress.Columns.Add(progressBar);
 			this.DgvProgress.Columns["Progress"].Width = UseCsvTbl[CSV_PROGRESS_BAR];
-
 		}
 
 		private void MakeProgressRow(List<Dictionary<string, string>> rowDicList)
 		{
 			int dicRowCount = 0;
 
-			foreach(var dicCell in rowDicList) {
+
+			foreach (var dicCell in rowDicList) {
 				string data;
 
 				// 条件を満たしたタスクだけ表示
@@ -260,7 +272,10 @@ namespace RMAnalyser
 					if (data == "100") continue;
 				}
 				if (dicCell.TryGetValue(CSV_DELIVERY_DAY.ToString(), out data)) {
-					if (data == "\"\"") continue;
+					if (data == "\"\"") {
+						this.NoLimitList.Add(dicCell);
+						continue;
+					}
 				}
 
 				// 残り日数の追加
@@ -292,17 +307,17 @@ namespace RMAnalyser
 							break;
 
 						case CSV_PERSON_NAME:   // "担当者": // MAKE_COLUM._PERSON:
-							//※上記で弾かれているため下記は不要になる
-							//string name = this.Nobady;
-							//if (!data.Equals("\"\"")) {
-							//	name = data;
-							//}
-							//SetCell(name);
+												//※上記で弾かれているため下記は不要になる
+												//string name = this.Nobady;
+												//if (!data.Equals("\"\"")) {
+												//	name = data;
+												//}
+												//SetCell(name);
 							SetCell(data);
 							break;
 
 						case CSV_REMAIMING:  // "残り":  // MAKE_COLUM._REMAINING:
-							DateTime dNow = DateTime.Now.Date;	// 時間なしの今日
+							DateTime dNow = DateTime.Now.Date;  // 時間なしの今日
 							DateTime dTime = DateTime.Parse(dicCell[CSV_DELIVERY_DAY.ToString()]);
 							TimeSpan span = dTime - dNow;
 							if (span.Days <= 0) {
@@ -320,18 +335,36 @@ namespace RMAnalyser
 							break;
 					}
 
-
 					// ローカル関数
 					void SetCell(string value)
 					{
 						this.DgvProgress.Rows[dicRowCount].Cells[cellCount].Value = value;
 						cellCount++;
 					}
-
 				}
 				dicRowCount++;
-
 			}
+		}
+
+
+		private void MakeNoLimitTaskGrid()
+		{
+			this.DgvNoLimitTask.Rows.Clear();
+
+			int row = 0;
+			foreach (var dic in this.NoLimitList) {
+					var aaa = dic[CSV_TASK_ID.ToString()];
+					this.DgvNoLimitTask.Rows.Add(aaa);
+
+				string name = dic[CSV_PERSON_NAME.ToString()];
+				this.DgvNoLimitTask.Rows[row].Cells[1].Value = name;
+
+				string task = dic[CSV_TASK_NAME.ToString()];
+				this.DgvNoLimitTask.Rows[row].Cells[2].Value = task;
+
+				row++;
+			}
+
 		}
 
 		private void MakePersonTaskGrid(PersonsTask personTask)
@@ -358,7 +391,7 @@ namespace RMAnalyser
 #endif
 		}
 
-		class NameWidth
+		private class NameWidth
 		{
 			public int Width { get; set; }
 			public string Name { get; set; }
@@ -369,6 +402,5 @@ namespace RMAnalyser
 				this.Width = width;
 			}
 		}
-
 	}
 }

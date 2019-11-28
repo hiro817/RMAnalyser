@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 namespace RMAnalyser
 {
-	class DataGridViewProgressBarColumn : DataGridViewTextBoxColumn
+	internal class DataGridViewProgressBarColumn : DataGridViewTextBoxColumn
 	{
 		/// <summary>
 		/// コンストラクタ
@@ -19,9 +19,7 @@ namespace RMAnalyser
 		/// </summary>
 		public override DataGridViewCell CellTemplate
 		{
-			get {
-				return base.CellTemplate;
-			}
+			get { return base.CellTemplate; }
 			set {
 				// DataGridViewProgressBarCell以外はホストしない
 				if (!(value is DataGridViewProgressBarCell)) {
@@ -37,19 +35,17 @@ namespace RMAnalyser
 		/// </summary>
 		public int Maximum
 		{
-			get {
-				return ((DataGridViewProgressBarCell)this.CellTemplate).Maximum;
-			}
+			get { return ((DataGridViewProgressBarCell)this.CellTemplate).Maximum; }
 			set {
-				if (this.Maximum == value)
-					return;
+				if (this.Maximum == value) return;
+
 				//セルテンプレートの値を変更する
-				((DataGridViewProgressBarCell)this.CellTemplate).Maximum =
-					value;
+				((DataGridViewProgressBarCell)this.CellTemplate).Maximum = value;
 				//DataGridViewにすでに追加されているセルの値を変更する
-				if (this.DataGridView == null)
-					return;
+				if (this.DataGridView == null) return;
+
 				int rowCount = this.DataGridView.RowCount;
+
 				for (int i = 0; i < rowCount; i++) {
 					DataGridViewRow r = this.DataGridView.Rows.SharedRow(i);
 					((DataGridViewProgressBarCell)r.Cells[this.Index]).Maximum =
@@ -63,18 +59,15 @@ namespace RMAnalyser
 		/// </summary>
 		public int Mimimum
 		{
-			get {
-				return ((DataGridViewProgressBarCell)this.CellTemplate).Mimimum;
-			}
+			get { return ((DataGridViewProgressBarCell)this.CellTemplate).Mimimum; }
 			set {
-				if (this.Mimimum == value)
-					return;
+				if (this.Mimimum == value) return;
+
 				//セルテンプレートの値を変更する
-				((DataGridViewProgressBarCell)this.CellTemplate).Mimimum =
-					value;
+				((DataGridViewProgressBarCell)this.CellTemplate).Mimimum = value;
 				//DataGridViewにすでに追加されているセルの値を変更する
-				if (this.DataGridView == null)
-					return;
+				if (this.DataGridView == null) return;
+
 				int rowCount = this.DataGridView.RowCount;
 				for (int i = 0; i < rowCount; i++) {
 					DataGridViewRow r = this.DataGridView.Rows.SharedRow(i);
@@ -84,7 +77,6 @@ namespace RMAnalyser
 			}
 		}
 	}   // End of 'class DataGridViewProgressBarColumn : DataGridViewTextBoxColumn'
-
 
 	//---------------------------------------------------------------------------
 	/// <summary>
@@ -100,6 +92,7 @@ namespace RMAnalyser
 		}
 
 		private int maximumValue;
+
 		public int Maximum
 		{
 			get { return this.maximumValue; }
@@ -107,6 +100,7 @@ namespace RMAnalyser
 		}
 
 		private int mimimumValue;
+
 		public int Mimimum
 		{
 			get { return this.mimimumValue; }
@@ -233,7 +227,6 @@ namespace RMAnalyser
 				this.DataGridView.CurrentCellAddress.Y == this.RowIndex &&
 				(paintParts & DataGridViewPaintParts.Focus) == DataGridViewPaintParts.Focus &&
 				this.DataGridView.Focused) {
-
 				//フォーカス枠の大きさを適当に決める
 				Rectangle focusRect = paintRect;
 				focusRect.Inflate(-3, -3);
@@ -276,7 +269,5 @@ namespace RMAnalyser
 				this.PaintErrorIcon(graphics, iconBounds, cellBounds, errorText);
 			}
 		}
-
 	}   // End of 'public class DataGridViewProgressBarCell : DataGridViewTextBoxCell'
-
 }

@@ -96,7 +96,7 @@
 			// 
 			this.groupBox4.Location = new System.Drawing.Point(13, 358);
 			this.groupBox4.Name = "groupBox4";
-			this.groupBox4.Size = new System.Drawing.Size(251, 148);
+			this.groupBox4.Size = new System.Drawing.Size(430, 148);
 			this.groupBox4.TabIndex = 4;
 			this.groupBox4.TabStop = false;
 			this.groupBox4.Text = "groupBox4";
