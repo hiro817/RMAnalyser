@@ -21,6 +21,42 @@ namespace RMAnalyser
 
 		private readonly string Nobady = "(未割り当て)";
 
+		private readonly int[] UseCsvTbl = {
+			45,		// 00 #(ID)		★CSV_TASK_ID
+			0,		// 01 プロジェクト
+			0,		// 02 トラッカー
+			0,		// 03 親チケット
+			0,		// 04 ステータス
+			0,		// 05 優先度
+			250,	// 06 題名		★CSV_TASK_NAME
+			0,		// 07 作成者
+			80,		// 08 担当者	★CSV_PERSON_NAME
+			0,		// 09 更新日
+			0,		// 10 カテゴリ
+			0,		// 11 対象バージョン
+			0,		// 12 開始日
+			74,		// 13 期日		★CSV_DELIVERY_DAY
+			0,		// 14 予定工数
+			52,		// 15 進捗率	★CSV_PROGRESS_RATE
+			0,		// 16 作成日
+			0,		// 17 終了日
+			0,		// 18 関連するチケット
+			0,		// 19 プライベート
+			// 以下追加分
+			54,		// 20 残り日数	★CSV_REMAIMING
+			75,		// 21 プログレスバー	★CSV_PROGRESS_BAR
+		};
+
+		private const int CSV_TASK_ID = 0;
+		private const int CSV_TASK_NAME = 6;
+		private const int CSV_PERSON_NAME = 8;
+		private const int CSV_DELIVERY_DAY = 13;
+		private const int CSV_PROGRESS_RATE = 15;
+		private const int CSV_REMAIMING = 20;
+		private const int CSV_PROGRESS_BAR = 21;
+
+
+
 		public Form1()
 		{
 			InitializeComponent();
@@ -67,10 +103,21 @@ namespace RMAnalyser
 			this.DgvMember.Columns["タスク数"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 			this.DgvMember.Columns["タスク数"].Width = 30;// NecessaryCsvTbl[(int)CSV_PROGRESS_RATE];
 
-			this.DgvMember.Columns.Add("平均進捗率", "平均");
-			this.DgvMember.Columns["平均進捗率"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
-			this.DgvMember.Columns["平均進捗率"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-			this.DgvMember.Columns["平均進捗率"].Width = UseCsvTbl[(int)CSV_PROGRESS_RATE];
+
+
+
+			//this.DgvMember.Columns.Add("平均進捗率", "平均");
+			//this.DgvMember.Columns["平均進捗率"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+			//this.DgvMember.Columns["平均進捗率"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+			//this.DgvMember.Columns["平均進捗率"].Width = UseCsvTbl[(int)CSV_PROGRESS_RATE];
+
+			var pgb = new DataGridViewProgressBarColumn();
+			pgb.DataPropertyName = "Progress";
+			pgb.HeaderText = "平均";
+			this.DgvMember.Columns.Add(pgb);
+			this.DgvMember.Columns[2].Width = 75;
+
+
 
 			// ▲初期化が完了したら送信する
 			((System.ComponentModel.ISupportInitialize)(this.DgvMember)).EndInit();
@@ -96,9 +143,26 @@ namespace RMAnalyser
 			this.DgvNoLimitTask.Columns["担当者"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 			this.DgvNoLimitTask.Columns["担当者"].Width = UseCsvTbl[(int)CSV_PERSON_NAME];
 
-			this.DgvNoLimitTask.Columns.Add("進捗", "進捗");
-			this.DgvNoLimitTask.Columns["進捗"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-			this.DgvNoLimitTask.Columns["進捗"].Width = UseCsvTbl[(int)CSV_PROGRESS_RATE];
+			//this.DgvNoLimitTask.Columns.Add("進捗", "進捗");
+			//this.DgvNoLimitTask.Columns["進捗"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+			//this.DgvNoLimitTask.Columns["進捗"].Width = UseCsvTbl[(int)CSV_PROGRESS_RATE];
+
+			var pgb = new DataGridViewProgressBarColumn();
+			pgb.DataPropertyName = "Progress";
+			pgb.HeaderText = "進捗";
+			this.DgvNoLimitTask.Columns.Add(pgb);
+			this.DgvNoLimitTask.Columns[3].Width = 75;// UseCsvTbl[CSV_PROGRESS_BAR];
+
+			/*
+			// 「プログレスバー」項目を追加
+			var progressBar = new DataGridViewProgressBarColumn();
+			progressBar.DataPropertyName = "Progress";
+			progressBar.HeaderText = "Progress";
+			progressBar.Name = "Progress";
+			this.DgvProgress.Columns.Add(progressBar);
+			this.DgvProgress.Columns["Progress"].Width = UseCsvTbl[CSV_PROGRESS_BAR];
+
+			*/
 
 			// ▲初期化が完了したら送信する
 			((System.ComponentModel.ISupportInitialize)(this.DgvNoLimitTask)).EndInit();
@@ -133,40 +197,6 @@ namespace RMAnalyser
 				CsvReader();
 			}
 		}
-
-		private readonly int[] UseCsvTbl = {
-			45,		// 00 #(ID)		★CSV_TASK_ID
-			0,		// 01 プロジェクト
-			0,		// 02 トラッカー
-			0,		// 03 親チケット
-			0,		// 04 ステータス
-			0,		// 05 優先度
-			250,	// 06 題名		★CSV_TASK_NAME
-			0,		// 07 作成者
-			80,		// 08 担当者	★CSV_PERSON_NAME
-			0,		// 09 更新日
-			0,		// 10 カテゴリ
-			0,		// 11 対象バージョン
-			0,		// 12 開始日
-			74,		// 13 期日		★CSV_DELIVERY_DAY
-			0,		// 14 予定工数
-			52,		// 15 進捗率	★CSV_PROGRESS_RATE
-			0,		// 16 作成日
-			0,		// 17 終了日
-			0,		// 18 関連するチケット
-			0,		// 19 プライベート
-			// 以下追加分
-			54,		// 20 残り日数	★CSV_REMAIMING
-			75,		// 21 プログレスバー	★CSV_PROGRESS_BAR
-		};
-
-		private const int CSV_TASK_ID = 0;
-		private const int CSV_TASK_NAME = 6;
-		private const int CSV_PERSON_NAME = 8;
-		private const int CSV_DELIVERY_DAY = 13;
-		private const int CSV_PROGRESS_RATE = 15;
-		private const int CSV_REMAIMING = 20;
-		private const int CSV_PROGRESS_BAR = 21;
 
 		private enum MAKE_COLUM
 		{
@@ -231,6 +261,7 @@ namespace RMAnalyser
 			MakeProgressRow(rowDicList);
 
 			MakePersonTaskGrid(personsTask);
+
 			MakeNoLimitTaskGrid();
 		}
 
@@ -367,8 +398,12 @@ namespace RMAnalyser
 				string name = dic[CSV_PERSON_NAME.ToString()];
 				this.DgvNoLimitTask.Rows[row].Cells[cell++].Value = name;
 
+
+				//string rate = dic[CSV_PROGRESS_RATE.ToString()];
+				//this.DgvNoLimitTask.Rows[row].Cells[cell++].Value = rate + "%";
+
 				string rate = dic[CSV_PROGRESS_RATE.ToString()];
-				this.DgvNoLimitTask.Rows[row].Cells[cell++].Value = rate + "%";
+				this.DgvNoLimitTask.Rows[row].Cells[cell++].Value = Convert.ToInt32(rate);
 
 				row++;
 			}
@@ -383,7 +418,14 @@ namespace RMAnalyser
 				string name = pt.Key;
 				this.DgvMember.Rows.Add(name);
 				this.DgvMember.Rows[row].Cells[1].Value = pt.Value.Count.ToString();
-				this.DgvMember.Rows[row].Cells[2].Value = personTask.GetAverageProgress(name).ToString("F1") + "%";
+
+
+
+				//this.DgvMember.Rows[row].Cells[2].Value = personTask.GetAverageProgress(name).ToString("F1") + "%";
+
+				float rate = personTask.GetAverageProgress(name);
+				this.DgvMember.Rows[row].Cells[2].Value = Convert.ToInt32(rate);
+
 				row++;
 			}
 		}
