@@ -17,7 +17,7 @@ namespace RMAnalyser
 		private DGV DgvMember = new DGV();
 		private DGV DgvNoLimitTask = new DGV();
 
-		private List<Dictionary<string, string>> NoLimitList = new List<Dictionary<string, string>>();
+		private List<Dictionary<string, string>> NoLimitList;
 
 		private readonly string Nobady = "(未割り当て)";
 
@@ -66,8 +66,8 @@ namespace RMAnalyser
 			this.label情報.Text = "CSVファイルをドラッグ＆ドロップしてください";
 
 			this.groupBox1.Text = "読み込みCSVファイル";
-			this.groupBox2.Text = "担当者別タスク";
-			this.groupBox3.Text = "タスク進捗情報";
+			this.groupBox2.Text = "担当者別のタスク";
+			this.groupBox3.Text = "期日ありタスク進捗情報";
 			this.groupBox4.Text = "期日未定のタスク";
 
 			ProgressGridInit();
@@ -103,21 +103,12 @@ namespace RMAnalyser
 			this.DgvMember.Columns["タスク数"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 			this.DgvMember.Columns["タスク数"].Width = 30;// NecessaryCsvTbl[(int)CSV_PROGRESS_RATE];
 
-
-
-
-			//this.DgvMember.Columns.Add("平均進捗率", "平均");
-			//this.DgvMember.Columns["平均進捗率"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
-			//this.DgvMember.Columns["平均進捗率"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-			//this.DgvMember.Columns["平均進捗率"].Width = UseCsvTbl[(int)CSV_PROGRESS_RATE];
-
+			// 「プログレスバー」項目を追加
 			var pgb = new DataGridViewProgressBarColumn();
 			pgb.DataPropertyName = "Progress";
 			pgb.HeaderText = "平均";
 			this.DgvMember.Columns.Add(pgb);
 			this.DgvMember.Columns[2].Width = 75;
-
-
 
 			// ▲初期化が完了したら送信する
 			((System.ComponentModel.ISupportInitialize)(this.DgvMember)).EndInit();
@@ -143,26 +134,12 @@ namespace RMAnalyser
 			this.DgvNoLimitTask.Columns["担当者"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 			this.DgvNoLimitTask.Columns["担当者"].Width = UseCsvTbl[(int)CSV_PERSON_NAME];
 
-			//this.DgvNoLimitTask.Columns.Add("進捗", "進捗");
-			//this.DgvNoLimitTask.Columns["進捗"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-			//this.DgvNoLimitTask.Columns["進捗"].Width = UseCsvTbl[(int)CSV_PROGRESS_RATE];
-
+			// 「プログレスバー」項目を追加
 			var pgb = new DataGridViewProgressBarColumn();
 			pgb.DataPropertyName = "Progress";
 			pgb.HeaderText = "進捗";
 			this.DgvNoLimitTask.Columns.Add(pgb);
 			this.DgvNoLimitTask.Columns[3].Width = 75;// UseCsvTbl[CSV_PROGRESS_BAR];
-
-			/*
-			// 「プログレスバー」項目を追加
-			var progressBar = new DataGridViewProgressBarColumn();
-			progressBar.DataPropertyName = "Progress";
-			progressBar.HeaderText = "Progress";
-			progressBar.Name = "Progress";
-			this.DgvProgress.Columns.Add(progressBar);
-			this.DgvProgress.Columns["Progress"].Width = UseCsvTbl[CSV_PROGRESS_BAR];
-
-			*/
 
 			// ▲初期化が完了したら送信する
 			((System.ComponentModel.ISupportInitialize)(this.DgvNoLimitTask)).EndInit();
@@ -295,7 +272,9 @@ namespace RMAnalyser
 
 		private void MakeProgressRow(List<Dictionary<string, string>> rowDicList)
 		{
-			int dicRowCount = 0;
+				NoLimitList = new List<Dictionary<string, string>>();
+
+		int dicRowCount = 0;
 
 			foreach (var dicCell in rowDicList) {
 				string data;
@@ -364,6 +343,7 @@ namespace RMAnalyser
 							break;
 
 						case CSV_PROGRESS_BAR:
+							// 「プログレスバー」の内容
 							string progress;
 							bool b3 = dicCell.TryGetValue(CSV_PROGRESS_RATE.ToString(), out progress);
 							this.DgvProgress.Rows[dicRowCount].Cells[(int)MAKE_COLUM._PROGRESS_BAR].Value = Convert.ToInt32(progress);
@@ -398,10 +378,7 @@ namespace RMAnalyser
 				string name = dic[CSV_PERSON_NAME.ToString()];
 				this.DgvNoLimitTask.Rows[row].Cells[cell++].Value = name;
 
-
-				//string rate = dic[CSV_PROGRESS_RATE.ToString()];
-				//this.DgvNoLimitTask.Rows[row].Cells[cell++].Value = rate + "%";
-
+				// 「プログレスバー」の内容
 				string rate = dic[CSV_PROGRESS_RATE.ToString()];
 				this.DgvNoLimitTask.Rows[row].Cells[cell++].Value = Convert.ToInt32(rate);
 
@@ -418,11 +395,9 @@ namespace RMAnalyser
 				string name = pt.Key;
 				this.DgvMember.Rows.Add(name);
 				this.DgvMember.Rows[row].Cells[1].Value = pt.Value.Count.ToString();
-
-
-
 				//this.DgvMember.Rows[row].Cells[2].Value = personTask.GetAverageProgress(name).ToString("F1") + "%";
 
+				// 「プログレスバー」の内容
 				float rate = personTask.GetAverageProgress(name);
 				this.DgvMember.Rows[row].Cells[2].Value = Convert.ToInt32(rate);
 
