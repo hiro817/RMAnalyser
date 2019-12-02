@@ -109,6 +109,7 @@ namespace RMAnalyser
 
 		//セルの値のデータ型を指定する
 		//ここでは、整数型とする
+#if false
 		public override Type ValueType
 		{
 			get { return typeof(int); }
@@ -119,6 +120,11 @@ namespace RMAnalyser
 		{
 			get { return 0; }
 		}
+#else
+		public override Type ValueType => typeof(int);
+		public override object DefaultNewRowValue => 0;
+#endif
+
 
 		//新しいプロパティを追加しているため、
 		// Cloneメソッドをオーバーライドする必要がある

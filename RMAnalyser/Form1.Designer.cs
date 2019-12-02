@@ -78,7 +78,7 @@
 			// 
 			this.groupBox3.Location = new System.Drawing.Point(271, 13);
 			this.groupBox3.Name = "groupBox3";
-			this.groupBox3.Size = new System.Drawing.Size(610, 338);
+			this.groupBox3.Size = new System.Drawing.Size(706, 338);
 			this.groupBox3.TabIndex = 2;
 			this.groupBox3.TabStop = false;
 			this.groupBox3.Text = "groupBox3";
@@ -106,7 +106,7 @@
 			this.AllowDrop = true;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(888, 605);
+			this.ClientSize = new System.Drawing.Size(989, 605);
 			this.Controls.Add(this.groupBox4);
 			this.Controls.Add(this.textBox開発);
 			this.Controls.Add(this.groupBox3);

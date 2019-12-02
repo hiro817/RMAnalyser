@@ -32,7 +32,7 @@ namespace RMAnalyser
 			this.groupBox1.Text = "読み込みCSVファイル";
 			this.groupBox2.Text = "担当者別タスク";
 			this.groupBox3.Text = "タスク進捗情報";
-			this.groupBox4.Text = "期日未定";
+			this.groupBox4.Text = "期日未定のタスク";
 
 			ProgressGridInit();
 			MemberGridInit();
@@ -176,6 +176,7 @@ namespace RMAnalyser
 			_DELIVERY,
 			_PROGRESS,
 			_REMAINING,     // 残り日数※追加
+			_PROGRESS_BAR,
 		}
 
 		private void CsvReader()
@@ -196,6 +197,8 @@ namespace RMAnalyser
 						// ヘッダの取得
 						if (row == 0) {
 							// データから取り込んでヘッダを作成
+							//if (column == CSV_PROGRESS_RATE) continue;
+
 							var nameWidth = new NameWidth(values[column], this.UseCsvTbl[column]);
 							headerDic.Add(column.ToString(), nameWidth);
 						}
@@ -243,7 +246,7 @@ namespace RMAnalyser
 				this.DgvProgress.Columns[name].Width = h.Value.Width;
 			}
 
-			this.DgvProgress.Columns["進捗率"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+			//this.DgvProgress.Columns["進捗率"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 
 			// 「残り日数」項目を追加
 			this.DgvProgress.Columns.Add("残り日数", "残り");
@@ -330,10 +333,10 @@ namespace RMAnalyser
 							break;
 
 						case CSV_PROGRESS_BAR:
-							//SetCell("10");
-							//this.DgvProgress.Rows.mas = "010";
+							string progress;
+							bool b3 = dicCell.TryGetValue(CSV_PROGRESS_RATE.ToString(), out progress);
+							this.DgvProgress.Rows[dicRowCount].Cells[(int)MAKE_COLUM._PROGRESS_BAR].Value = Convert.ToInt32(progress);
 							cellCount++;
-
 							break;
 					}
 
@@ -375,7 +378,6 @@ namespace RMAnalyser
 		{
 			this.DgvMember.Rows.Clear();
 
-#if true
 			int row = 0;
 			foreach (var pt in personTask.NameDic) {
 				string name = pt.Key;
@@ -384,15 +386,6 @@ namespace RMAnalyser
 				this.DgvMember.Rows[row].Cells[2].Value = personTask.GetAverageProgress(name).ToString("F1") + "%";
 				row++;
 			}
-#else
-			for (int row = 0; row < personTask.NameDic.Count; row++) {
-				var pt = personTask.NameDic.ElementAt(row);//※多分これが一番遅い
-				string name = pt.Key;
-				this.DgvMember.Rows.Add(name);
-				this.DgvMember.Rows[row].Cells[1].Value = pt.Value.Count.ToString();
-				this.DgvMember.Rows[row].Cells[2].Value = personTask.GetAverageProgress(name).ToString("F1") + "%";
-			}
-#endif
 		}
 
 		private class NameWidth
