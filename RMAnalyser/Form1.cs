@@ -82,6 +82,14 @@ namespace RMAnalyser
 
 			this.DgvProgress.Init(this.groupBox3, "");
 
+
+
+
+
+
+
+
+
 			// ▲初期化が完了したら送信する
 			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
 		}
@@ -106,7 +114,7 @@ namespace RMAnalyser
 			// 「プログレスバー」項目を追加
 			var pgb = new DataGridViewProgressBarColumn();
 			pgb.DataPropertyName = "Progress";
-			pgb.HeaderText = "平均";
+			pgb.HeaderText = "平均進捗率";
 			this.DgvMember.Columns.Add(pgb);
 			this.DgvMember.Columns[2].Width = 75;
 
@@ -137,7 +145,7 @@ namespace RMAnalyser
 			// 「プログレスバー」項目を追加
 			var pgb = new DataGridViewProgressBarColumn();
 			pgb.DataPropertyName = "Progress";
-			pgb.HeaderText = "進捗";
+			pgb.HeaderText = "進捗率";
 			this.DgvNoLimitTask.Columns.Add(pgb);
 			this.DgvNoLimitTask.Columns[3].Width = 75;// UseCsvTbl[CSV_PROGRESS_BAR];
 
@@ -264,7 +272,7 @@ namespace RMAnalyser
 			// 「プログレスバー」項目を追加
 			var progressBar = new DataGridViewProgressBarColumn();
 			progressBar.DataPropertyName = "Progress";
-			progressBar.HeaderText = "Progress";
+			progressBar.HeaderText = "進捗率";
 			progressBar.Name = "Progress";
 			this.DgvProgress.Columns.Add(progressBar);
 			this.DgvProgress.Columns["Progress"].Width = UseCsvTbl[CSV_PROGRESS_BAR];
