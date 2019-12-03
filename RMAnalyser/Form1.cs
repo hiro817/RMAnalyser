@@ -60,7 +60,7 @@ namespace RMAnalyser
 		{
 			InitializeComponent();
 
-			this.Text = "RedAnalyser Ver." + Version;
+			this.Text = "RMAnalyser Ver." + Version;
 			this.label情報.Text = "CSVファイルをドラッグ＆ドロップしてください";
 			this.groupBox1.Text = "読み込みCSVファイル";
 
@@ -241,45 +241,38 @@ namespace RMAnalyser
 			using (StreamReader sr = new StreamReader(this.m_ReadFile, m_Encod)) {
 				string line;
 				for (int row = 0; (line = sr.ReadLine()) != null; row++) {
+					// カラム名をスキップ
+					if (row == 0) continue;
+
 					string[] values = line.Split(',');
 					// 横ライン分
 					var dataDic = new Dictionary<string, string>();
 					for (int column = 0; column < values.Length; column++) {
 						if (this.UseCsvTbl[column] == 0) continue;
 
-						// ヘッダの取得
-						if (row == 0) {
-
-						}
 						// 本体データの取得
-						else {
-							dataDic.Add(column.ToString(), values[column]);
+						dataDic.Add(column.ToString(), values[column]);
 
-#region 担当者別の進捗情報の取得
+						#region 担当者別の進捗情報の取得
 
-							string progressName = this.Nobady;
-							if (values[CSV_PERSON_NAME] != "\"\"") {
-								progressName = values[CSV_PERSON_NAME];
-							}
-							int rate = Convert.ToInt32(values[CSV_PROGRESS_RATE]);
-							if (!personsTask.IsNewPerson(progressName, rate)) {
-								personsTask.AddProgress(progressName, rate);
-							}
-
-#endregion 担当者別の進捗情報の取得
+						string progressName = this.Nobady;
+						if (values[CSV_PERSON_NAME] != "\"\"") {
+							progressName = values[CSV_PERSON_NAME];
 						}
+						int rate = Convert.ToInt32(values[CSV_PROGRESS_RATE]);
+						if (!personsTask.IsNewPerson(progressName, rate)) {
+							personsTask.AddProgress(progressName, rate);
+						}
+
+						#endregion 担当者別の進捗情報の取得
 					}
-					// 追加項目
-					if (row != 0) {
-						rowDicList.Add(dataDic);
-					}
+
+					rowDicList.Add(dataDic);
 				}
 			}
 
 			MakeProgressRow(rowDicList);
-
 			MakePersonTaskGrid(personsTask);
-
 			MakeNoLimitTaskGrid();
 		}
 
