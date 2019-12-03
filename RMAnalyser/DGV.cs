@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
 using System.Windows.Forms;
 
 namespace RMAnalyser
@@ -14,15 +9,19 @@ namespace RMAnalyser
 		{
 		}
 
-		public void Init(GroupBox gbox, string titleName="")
+		public void Init(GroupBox groupBox, string titleName="")
 		{
-			gbox.Controls.Add(this);
+			groupBox.Controls.Add(this);
+
 			// 自動でコントロールの四辺にドッキングして適切なサイズに調整される
 			this.Dock = DockStyle.Fill;
+			this.Location = new Point(10, 20);
 
+			// 左上にタイトルがあるときだけ行番号をつける
 			if (titleName != "") {
 				// 左上隅のセルの値
 				this.TopLeftHeaderCell.Value = titleName;
+
 				this.RowPostPaint += delegate (object sender, DataGridViewRowPostPaintEventArgs e)
 				{
 					// 行ヘッダのセル領域を、行番号を描画する長方形とする
@@ -45,7 +44,7 @@ namespace RMAnalyser
 				};
 			}
 			else {
-				// 左ヘッダをなくする(行番号を付けるイベントハンドラも削除すること)
+				// 左ヘッダをなくする
 				this.RowHeadersVisible = false;
 			}
 
@@ -72,7 +71,8 @@ namespace RMAnalyser
 			// 新しい行の追加不可に設定
 			this.AllowUserToAddRows = false;
 
-			this.Location = new Point(10, 20);
+			this.ScrollBars = ScrollBars.Vertical;
+			//VScroll = true;
 
 		}
 

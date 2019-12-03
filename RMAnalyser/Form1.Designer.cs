@@ -87,18 +87,18 @@
 			// 
 			// textBox開発
 			// 
-			this.textBox開発.BackColor = System.Drawing.Color.Wheat;
-			this.textBox開発.Location = new System.Drawing.Point(501, 358);
+			this.textBox開発.BackColor = System.Drawing.Color.White;
+			this.textBox開発.Location = new System.Drawing.Point(496, 365);
 			this.textBox開発.Multiline = true;
 			this.textBox開発.Name = "textBox開発";
-			this.textBox開発.Size = new System.Drawing.Size(373, 235);
+			this.textBox開発.Size = new System.Drawing.Size(378, 202);
 			this.textBox開発.TabIndex = 3;
 			// 
 			// groupBox4
 			// 
 			this.groupBox4.Location = new System.Drawing.Point(13, 358);
 			this.groupBox4.Name = "groupBox4";
-			this.groupBox4.Size = new System.Drawing.Size(482, 209);
+			this.groupBox4.Size = new System.Drawing.Size(477, 209);
 			this.groupBox4.TabIndex = 4;
 			this.groupBox4.TabStop = false;
 			this.groupBox4.Text = "groupBox4";

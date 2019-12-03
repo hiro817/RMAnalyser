@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -60,25 +61,21 @@ namespace RMAnalyser
 		{
 			InitializeComponent();
 
+
 			this.Text = "RedAnalyser Ver." + Version;
-
 			this.label情報.Text = "CSVファイルをドラッグ＆ドロップしてください";
-
 			this.groupBox1.Text = "読み込みCSVファイル";
 
-			//this.groupBox2.Text = "担当者別のタスク";
-			GroupBoxMemberText();
-
-			//this.groupBox3.Text = "期日ありタスク進捗情報";
-
-			GroupBoxProgressText();
-			GroupBoxMemberText();
-			GroupBoxNoLimitText();
-
-			ProgressGridInit();
-			MemberGridInit();
-			NoLimitTaskGridInit();
+			InitProgressGrid();
+			InitMemberGrid();
+			InitNoLimitTaskGrid();
 		}
+
+		//[Conditional("DEBUG")]
+		//private void DebugControlView()
+		//{
+		//	this.textBox開発.Visible = true;
+		//}
 
 		private void GroupBoxProgressText()
 		{
@@ -95,14 +92,17 @@ namespace RMAnalyser
 			this.groupBox4.Text = "期日未定のタスク (" + DgvNoLimitTask.RowCount.ToString() + ")";
 		}
 
-		private void ProgressGridInit()
+		private void InitProgressGrid()
 		{
+			GroupBoxProgressText();
+
 			// ▼初期化中はコントロール使用不可
 			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
 
 			this.DgvProgress.Init(this.groupBox3, "");
 
 			this.DgvProgress.Columns.Clear();
+			//this.DgvProgress.ScrollBars = ScrollBars.Vertical;
 
 			// カラム(ヘッダ)の出力
 			this.DgvProgress.Columns.Add("id", "#");
@@ -141,8 +141,10 @@ namespace RMAnalyser
 			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
 		}
 
-		private void MemberGridInit()
+		private void InitMemberGrid()
 		{
+			GroupBoxMemberText();
+
 			// ▼初期化中はコントロール使用不可
 			((System.ComponentModel.ISupportInitialize)(this.DgvMember)).BeginInit();
 
@@ -171,8 +173,10 @@ namespace RMAnalyser
 			((System.ComponentModel.ISupportInitialize)(this.DgvMember)).EndInit();
 		}
 
-		private void NoLimitTaskGridInit()
+		private void InitNoLimitTaskGrid()
 		{
+			GroupBoxNoLimitText();
+
 			// ▼初期化中はコントロール使用不可
 			((System.ComponentModel.ISupportInitialize)(this.DgvNoLimitTask)).BeginInit();
 
