@@ -71,7 +71,7 @@
 			// 
 			this.groupBox2.Location = new System.Drawing.Point(13, 77);
 			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Size = new System.Drawing.Size(251, 248);
+			this.groupBox2.Size = new System.Drawing.Size(216, 248);
 			this.groupBox2.TabIndex = 1;
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "groupBox2";

@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace RMAnalyser
@@ -9,8 +10,14 @@ namespace RMAnalyser
 		{
 		}
 
-		public void Init(GroupBox groupBox, string titleName="")
+		public GroupBox ParentGroupBox { get; set; }
+		public string GBText { get; set; }
+
+		public void Init(GroupBox groupBox, string gbText, string titleName = "")
 		{
+			this.GBText = gbText;
+
+			this.ParentGroupBox = groupBox;
 			groupBox.Controls.Add(this);
 
 			// 自動でコントロールの四辺にドッキングして適切なサイズに調整される
@@ -74,6 +81,7 @@ namespace RMAnalyser
 			this.ScrollBars = ScrollBars.Vertical;
 			//VScroll = true;
 
+			SetGroupTextRowCount();
 		}
 
 		public string ButtonClick()
@@ -83,6 +91,13 @@ namespace RMAnalyser
 			Clipboard.SetDataObject(this.GetClipboardContent());
 
 			return "クリップボードにコピーしました！";
+		}
+
+		public void SetGroupTextRowCount()
+		{
+			if (this.GBText != null) {
+				this.ParentGroupBox.Text = this.GBText + " (" + this.RowCount.ToString() + ")";
+			}
 		}
 
 	}
