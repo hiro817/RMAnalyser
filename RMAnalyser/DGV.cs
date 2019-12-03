@@ -75,5 +75,15 @@ namespace RMAnalyser
 			this.Location = new Point(10, 20);
 
 		}
+
+		public string ButtonClick()
+		{
+			this.SelectAll();
+			this.ClipboardCopyMode = DataGridViewClipboardCopyMode.EnableAlwaysIncludeHeaderText;
+			Clipboard.SetDataObject(this.GetClipboardContent());
+
+			return "クリップボードにコピーしました！";
+		}
+
 	}
 }

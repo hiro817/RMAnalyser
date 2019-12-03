@@ -34,13 +34,15 @@
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
 			this.textBox開発 = new System.Windows.Forms.TextBox();
 			this.groupBox4 = new System.Windows.Forms.GroupBox();
+			this.button担当者別 = new System.Windows.Forms.Button();
+			this.button期日あり進捗 = new System.Windows.Forms.Button();
+			this.button期日未定タスク = new System.Windows.Forms.Button();
 			this.groupBox1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// groupBox1
 			// 
 			this.groupBox1.Controls.Add(this.textBoxファイル名);
-			this.groupBox1.Controls.Add(this.label情報);
 			this.groupBox1.Location = new System.Drawing.Point(13, 13);
 			this.groupBox1.Name = "groupBox1";
 			this.groupBox1.Size = new System.Drawing.Size(251, 57);
@@ -59,7 +61,7 @@
 			// 
 			this.label情報.AutoSize = true;
 			this.label情報.ForeColor = System.Drawing.Color.Red;
-			this.label情報.Location = new System.Drawing.Point(7, 39);
+			this.label情報.Location = new System.Drawing.Point(528, 334);
 			this.label情報.Name = "label情報";
 			this.label情報.Size = new System.Drawing.Size(35, 12);
 			this.label情報.TabIndex = 0;
@@ -69,7 +71,7 @@
 			// 
 			this.groupBox2.Location = new System.Drawing.Point(13, 77);
 			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Size = new System.Drawing.Size(251, 274);
+			this.groupBox2.Size = new System.Drawing.Size(251, 248);
 			this.groupBox2.TabIndex = 1;
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "groupBox2";
@@ -78,7 +80,7 @@
 			// 
 			this.groupBox3.Location = new System.Drawing.Point(271, 13);
 			this.groupBox3.Name = "groupBox3";
-			this.groupBox3.Size = new System.Drawing.Size(640, 338);
+			this.groupBox3.Size = new System.Drawing.Size(640, 312);
 			this.groupBox3.TabIndex = 2;
 			this.groupBox3.TabStop = false;
 			this.groupBox3.Text = "groupBox3";
@@ -96,10 +98,40 @@
 			// 
 			this.groupBox4.Location = new System.Drawing.Point(13, 358);
 			this.groupBox4.Name = "groupBox4";
-			this.groupBox4.Size = new System.Drawing.Size(482, 235);
+			this.groupBox4.Size = new System.Drawing.Size(482, 209);
 			this.groupBox4.TabIndex = 4;
 			this.groupBox4.TabStop = false;
 			this.groupBox4.Text = "groupBox4";
+			// 
+			// button担当者別
+			// 
+			this.button担当者別.Location = new System.Drawing.Point(13, 329);
+			this.button担当者別.Name = "button担当者別";
+			this.button担当者別.Size = new System.Drawing.Size(251, 23);
+			this.button担当者別.TabIndex = 5;
+			this.button担当者別.Text = "担当者別をコピー";
+			this.button担当者別.UseVisualStyleBackColor = true;
+			this.button担当者別.Click += new System.EventHandler(this.button担当者別_Click);
+			// 
+			// button期日あり進捗
+			// 
+			this.button期日あり進捗.Location = new System.Drawing.Point(271, 329);
+			this.button期日あり進捗.Name = "button期日あり進捗";
+			this.button期日あり進捗.Size = new System.Drawing.Size(251, 23);
+			this.button期日あり進捗.TabIndex = 6;
+			this.button期日あり進捗.Text = "期日あり進捗をコピー";
+			this.button期日あり進捗.UseVisualStyleBackColor = true;
+			this.button期日あり進捗.Click += new System.EventHandler(this.button期日あり進捗_Click);
+			// 
+			// button期日未定タスク
+			// 
+			this.button期日未定タスク.Location = new System.Drawing.Point(13, 570);
+			this.button期日未定タスク.Name = "button期日未定タスク";
+			this.button期日未定タスク.Size = new System.Drawing.Size(251, 23);
+			this.button期日未定タスク.TabIndex = 7;
+			this.button期日未定タスク.Text = "期日未定タスクをコピー";
+			this.button期日未定タスク.UseVisualStyleBackColor = true;
+			this.button期日未定タスク.Click += new System.EventHandler(this.button期日未定タスク_Click);
 			// 
 			// Form1
 			// 
@@ -107,6 +139,10 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(919, 605);
+			this.Controls.Add(this.button期日未定タスク);
+			this.Controls.Add(this.label情報);
+			this.Controls.Add(this.button期日あり進捗);
+			this.Controls.Add(this.button担当者別);
 			this.Controls.Add(this.groupBox4);
 			this.Controls.Add(this.textBox開発);
 			this.Controls.Add(this.groupBox3);
@@ -134,6 +170,9 @@
 		private System.Windows.Forms.TextBox textBoxファイル名;
 		private System.Windows.Forms.TextBox textBox開発;
 		private System.Windows.Forms.GroupBox groupBox4;
+		private System.Windows.Forms.Button button担当者別;
+		private System.Windows.Forms.Button button期日あり進捗;
+		private System.Windows.Forms.Button button期日未定タスク;
 	}
 }
 

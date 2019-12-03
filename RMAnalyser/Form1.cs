@@ -424,5 +424,20 @@ namespace RMAnalyser
 				this.Width = width;
 			}
 		}
+
+		private void button担当者別_Click(object sender, EventArgs e)
+		{
+			this.label情報.Text = "担当者別のタスクを"+this.DgvMember.ButtonClick();
+		}
+
+		private void button期日あり進捗_Click(object sender, EventArgs e)
+		{
+			this.label情報.Text = "期日あり進捗のタスクを" + this.DgvProgress.ButtonClick();
+		}
+		private void button期日未定タスク_Click(object sender, EventArgs e)
+		{
+			this.label情報.Text = "期日未定タスクを" + this.DgvNoLimitTask.ButtonClick();
+		}
+
 	}
 }
