@@ -121,8 +121,8 @@ namespace RMAnalyser
 			this.DgvProgress.Columns["期日"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 
 			//4
-			this.DgvProgress.Columns.Add("ダミー", "ダミー");
-			this.DgvProgress.Columns["ダミー"].Width = 0;
+			//this.DgvProgress.Columns.Add("ダミー", "");
+			//this.DgvProgress.Columns["ダミー"].Width = 0;
 			//this.DgvProgress.Columns["ダミー"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 
 			//new5
@@ -240,7 +240,7 @@ namespace RMAnalyser
 			_TITLE,
 			_PERSON,
 			_DELIVERY,
-			_PROGRESS,
+			//_PROGRESS,
 			_REMAINING,     // 残り日数※追加
 			_PROGRESS_BAR,
 		}
@@ -297,8 +297,6 @@ namespace RMAnalyser
 			}
 
 			this.DgvProgress.Rows.Clear();
-			//this.DgvProgress.Columns.Clear();
-
 #if SW_COLUM_NEW
 #else
 			MakeProgressHeader(headerDic);
@@ -386,7 +384,7 @@ namespace RMAnalyser
 
 						case CSV_PROGRESS_RATE: // "進捗率": // MAKE_COLUM._PROGRESS:
 							//SetCell(data + "%");
-							cellCount++;
+							//cellCount++;
 							break;
 
 						case CSV_PERSON_NAME:   // "担当者": // MAKE_COLUM._PERSON:
