@@ -23,8 +23,7 @@ namespace RMAnalyser
 			set {
 				// DataGridViewProgressBarCell以外はホストしない
 				if (!(value is DataGridViewProgressBarCell)) {
-					throw new InvalidCastException(
-						"DataGridViewProgressBarCellオブジェクトを指定してください。");
+					throw new InvalidCastException("DataGridViewProgressBarCellオブジェクトを指定してください。");
 				}
 				base.CellTemplate = value;
 			}
@@ -37,19 +36,16 @@ namespace RMAnalyser
 		{
 			get { return ((DataGridViewProgressBarCell)this.CellTemplate).Maximum; }
 			set {
-				if (this.Maximum == value) return;
+				if (this.Maximum == value || this.DataGridView == null) return;
 
 				//セルテンプレートの値を変更する
 				((DataGridViewProgressBarCell)this.CellTemplate).Maximum = value;
+
 				//DataGridViewにすでに追加されているセルの値を変更する
-				if (this.DataGridView == null) return;
-
 				int rowCount = this.DataGridView.RowCount;
-
 				for (int i = 0; i < rowCount; i++) {
 					DataGridViewRow r = this.DataGridView.Rows.SharedRow(i);
-					((DataGridViewProgressBarCell)r.Cells[this.Index]).Maximum =
-						value;
+					((DataGridViewProgressBarCell)r.Cells[this.Index]).Maximum = value;
 				}
 			}
 		}
@@ -61,18 +57,16 @@ namespace RMAnalyser
 		{
 			get { return ((DataGridViewProgressBarCell)this.CellTemplate).Mimimum; }
 			set {
-				if (this.Mimimum == value) return;
+				if (this.Mimimum == value || this.DataGridView == null) return;
 
 				//セルテンプレートの値を変更する
 				((DataGridViewProgressBarCell)this.CellTemplate).Mimimum = value;
-				//DataGridViewにすでに追加されているセルの値を変更する
-				if (this.DataGridView == null) return;
 
+				//DataGridViewにすでに追加されているセルの値を変更する
 				int rowCount = this.DataGridView.RowCount;
 				for (int i = 0; i < rowCount; i++) {
 					DataGridViewRow r = this.DataGridView.Rows.SharedRow(i);
-					((DataGridViewProgressBarCell)r.Cells[this.Index]).Mimimum =
-						value;
+					((DataGridViewProgressBarCell)r.Cells[this.Index]).Mimimum = value;
 				}
 			}
 		}
