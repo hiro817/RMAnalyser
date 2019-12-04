@@ -131,8 +131,6 @@ namespace RMAnalyser
 			//this.DgvProgress.ColumnCount = 6;
 
 			// カラム(ヘッダ)の出力
-			//DataGridViewTextBoxColumn[] columns = new DataGridViewTextBoxColumn[6];
-
 			var	columns = new DataGridViewTextBoxColumn();//★
 			columns.Name = "ID";
 			columns.DataPropertyName = "Id";
@@ -150,7 +148,6 @@ namespace RMAnalyser
 			this.DgvProgress.Columns.Add(columns);
 
 			columns = new DataGridViewTextBoxColumn();//★
-			//columns.DataPropertyName = "NAME";
 			columns.Name = "NAME";
 			columns.DataPropertyName = "Name";
 			columns.HeaderText = "名前";
@@ -172,8 +169,7 @@ namespace RMAnalyser
 			columns.DataPropertyName = "Limit";
 			columns.HeaderText = "期日";
 			columns.Width = UseCsvTbl[CSV_DELIVERY_DAY];
-			columns.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;//※効果なし
-			//columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			columns.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;//※効果なし?
 			this.DgvProgress.Columns.Add(columns);
 
 			// 「残り日数」項目を追加
@@ -182,7 +178,7 @@ namespace RMAnalyser
 			columns.DataPropertyName = "Remaiming";
 			columns.HeaderText = "残り";
 			columns.Width = UseCsvTbl[CSV_REMAIMING];
-			columns.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;//※効果なし
+			columns.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;//※効果なし?
 			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 			this.DgvProgress.Columns.Add(columns);
 		}
