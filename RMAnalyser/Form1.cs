@@ -64,9 +64,18 @@ namespace RMAnalyser
 			this.label情報.Text = "CSVファイルをドラッグ＆ドロップしてください";
 			this.groupBox1.Text = "読み込みCSVファイル";
 
-			InitProgressGrid();
-			InitMemberGrid();
-			InitNoLimitTaskGrid();
+			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
+			InitDgvProgress();
+			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
+
+			((System.ComponentModel.ISupportInitialize)(this.DgvMember)).BeginInit();
+			InitDgvMember();
+			((System.ComponentModel.ISupportInitialize)(this.DgvMember)).EndInit();
+
+			((System.ComponentModel.ISupportInitialize)(this.DgvNoLimitTask)).BeginInit();
+			InitDgvNoLimitTask();
+			((System.ComponentModel.ISupportInitialize)(this.DgvNoLimitTask)).EndInit();
+
 		}
 
 		//[Conditional("DEBUG")]
@@ -75,12 +84,9 @@ namespace RMAnalyser
 		//	this.textBox開発.Visible = true;
 		//}
 
-		private void InitProgressGrid()
+		private void InitDgvProgress()
 		{
 			this.DgvProgress.SetGroupTextRowCount();
-
-			// ▼初期化中はコントロール使用不可
-			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
 
 			this.DgvProgress.Init(this.groupBox3, "期日ありタスク進捗情報", "");
 
@@ -119,15 +125,10 @@ namespace RMAnalyser
 			this.DgvProgress.Columns["残り日数"].Width = UseCsvTbl[CSV_REMAIMING];
 			this.DgvProgress.Columns["残り日数"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;//※効果なし
 			this.DgvProgress.Columns["残り日数"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-
-			// ▲初期化が完了したら送信する
-			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
 		}
 
-		private void InitMemberGrid()
+		private void InitDgvMember()
 		{
-			// ▼初期化中はコントロール使用不可
-			((System.ComponentModel.ISupportInitialize)(this.DgvMember)).BeginInit();
 
 			//this.DgvMember.Init(this.groupBox2, "担当者別のタスク", "No.");//※貼付け時に「No.」が不要になるので無くした＠19/12/03
 			this.DgvMember.Init(this.groupBox2, "担当者別のタスク");
@@ -151,16 +152,10 @@ namespace RMAnalyser
 			this.DgvMember.Columns.Add(pgb);
 			this.DgvMember.Columns["Progress"].Width = UseCsvTbl[CSV_PROGRESS_BAR];//75;
 			this.DgvMember.Columns["Progress"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
-
-			// ▲初期化が完了したら送信する
-			((System.ComponentModel.ISupportInitialize)(this.DgvMember)).EndInit();
 		}
 
-		private void InitNoLimitTaskGrid()
+		private void InitDgvNoLimitTask()
 		{
-			// ▼初期化中はコントロール使用不可
-			((System.ComponentModel.ISupportInitialize)(this.DgvNoLimitTask)).BeginInit();
-
 			this.DgvNoLimitTask.Init(this.groupBox4, "期日未定のタスク", "");
 
 			// カラム(ヘッダ)の出力
@@ -184,9 +179,6 @@ namespace RMAnalyser
 			this.DgvNoLimitTask.Columns.Add(pgb);
 			this.DgvNoLimitTask.Columns["Progress"].Width = UseCsvTbl[CSV_PROGRESS_BAR];
 			this.DgvNoLimitTask.Columns["Progress"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
-
-			// ▲初期化が完了したら送信する
-			((System.ComponentModel.ISupportInitialize)(this.DgvNoLimitTask)).EndInit();
 		}
 
 		private void Form1_DragEnter(object sender, DragEventArgs e)
