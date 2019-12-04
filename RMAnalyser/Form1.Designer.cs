@@ -91,6 +91,7 @@
 			this.textBox開発.Location = new System.Drawing.Point(496, 365);
 			this.textBox開発.Multiline = true;
 			this.textBox開発.Name = "textBox開発";
+			this.textBox開発.ScrollBars = System.Windows.Forms.ScrollBars.Both;
 			this.textBox開発.Size = new System.Drawing.Size(378, 202);
 			this.textBox開発.TabIndex = 3;
 			// 

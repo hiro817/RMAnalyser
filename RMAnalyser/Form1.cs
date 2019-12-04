@@ -56,9 +56,44 @@ namespace RMAnalyser
 		private const int CSV_REMAIMING = 20;
 		private const int CSV_PROGRESS_BAR = 21;
 
+		//enum CSVDIC
+		//{
+		//	_ID,		// ID
+		//	_01,        // プロジェクト
+		//	_02,        // トラッカー
+		//	_03,        // 親チケット
+		//	_04,        // ステータス
+		//	_05,        // 優先度
+		//	_TITLE,		// 題名
+		//	_07,        // 作成者
+		//	_NAME,      // 担当者
+		//	_09,        // 更新日
+		//	_10,        // カテゴリ
+		//	_11,        // 対象バージョン
+		//	_12,        // 開始日
+		//	_LIMIT,     // 期日
+		//	_14,        // 予定工数
+		//	_PROGRESS,  // 15 進捗率
+		//	_16,        // 作成日
+		//	_17,        // 終了日
+		//	_18,        // 関連するチケット
+		//	_19,        // プライベート
+		//				// 以下追加分
+		//	_REMAIMING, // 20 残り日数
+		//	_BAR,       // 21 プログレスバー
+		//};
+
+
+		private string[] CsvDic;
+
 		public Form1()
 		{
 			InitializeComponent();
+
+			//this.CsvDic = Enum.GetNames(typeof(CSVDIC));
+			//foreach (string e in this.CsvDic) {
+			//	textBox開発.Text += e + "\r\n";
+			//}
 
 			this.Text = "RMAnalyser Ver." + Version;
 			this.label情報.Text = "CSVファイルをドラッグ＆ドロップしてください";
@@ -93,38 +128,91 @@ namespace RMAnalyser
 			this.DgvProgress.Columns.Clear();
 			//this.DgvProgress.ScrollBars = ScrollBars.Vertical;//※常に垂直スクロールバーを表示させたい
 
+			//this.DgvProgress.ColumnCount = 6;
+
 			// カラム(ヘッダ)の出力
-			this.DgvProgress.Columns.Add("id", "#");
-			this.DgvProgress.Columns["id"].Width = UseCsvTbl[CSV_TASK_ID];
-			this.DgvProgress.Columns["id"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			//DataGridViewTextBoxColumn[] columns = new DataGridViewTextBoxColumn[6];
 
-			this.DgvProgress.Columns.Add("題名", "題名");
-			this.DgvProgress.Columns["題名"].Width = UseCsvTbl[CSV_TASK_NAME];
-			this.DgvProgress.Columns["題名"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			var	columns = new DataGridViewTextBoxColumn();//★
+			//columns.DataPropertyName = "ID";
+			columns.Name = "ID";
+			columns.HeaderText = "#";
+			columns.Width = UseCsvTbl[CSV_TASK_ID];
+			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			this.DgvProgress.Columns.Add(columns);
 
-			this.DgvProgress.Columns.Add("担当者", "担当者");
-			this.DgvProgress.Columns["担当者"].Width = UseCsvTbl[CSV_PERSON_NAME];
-			this.DgvProgress.Columns["担当者"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			//this.DgvProgress.Columns[0].Width = UseCsvTbl[CSV_TASK_ID];
+			//this.DgvProgress.Columns[0].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+
+			columns = new DataGridViewTextBoxColumn();//★
+			//columns.DataPropertyName = "TITLE";
+			columns.Name = "TITLE";
+			columns.HeaderText = "題名";
+			columns.Width = UseCsvTbl[CSV_TASK_NAME];
+			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			this.DgvProgress.Columns.Add(columns);
+
+			//this.DgvProgress.Columns[1].Name = "題名";
+			//this.DgvProgress.Columns[1].Width = UseCsvTbl[CSV_TASK_NAME];
+			//this.DgvProgress.Columns[1].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+
+			columns = new DataGridViewTextBoxColumn();//★
+			//columns.DataPropertyName = "NAME";
+			columns.Name = "NAME";
+			columns.HeaderText = "名前";
+			columns.Width = UseCsvTbl[CSV_PERSON_NAME];
+			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			this.DgvProgress.Columns.Add(columns);
+			//this.DgvProgress.Columns.Add("担当者", "担当者");
+			//this.DgvProgress.Columns[2].Name = "担当者";
+			//this.DgvProgress.Columns[2].Width = UseCsvTbl[CSV_PERSON_NAME];
+			//this.DgvProgress.Columns[2].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 
 			// 「プログレスバー」項目を追加
 			var pgb = new DataGridViewProgressBarColumn();
-			//progressBar.DataPropertyName = "Progress";
+			pgb.DataPropertyName = "BAR";
 			pgb.HeaderText = "進捗率";
 			pgb.Name = "Progress";
-			this.DgvProgress.Columns.Add(pgb);
-			this.DgvProgress.Columns["Progress"].Width = UseCsvTbl[CSV_PROGRESS_BAR];
-			this.DgvProgress.Columns["Progress"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+			//this.DgvProgress.Columns.Add(pgb);
+			//this.DgvProgress.Columns["Progress"].Width = UseCsvTbl[CSV_PROGRESS_BAR];
+			//this.DgvProgress.Columns["Progress"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+			//columns[3] = new DataGridViewTextBoxColumn();//★
+			columns = new DataGridViewTextBoxColumn();//★
+			columns = pgb;
+			//columns[3].DataPropertyName = "Progress";
+			//columns[3].HeaderText = "進捗率";
+			columns.Name = "BAR";
+			columns.Width = UseCsvTbl[CSV_PROGRESS_BAR];
+			columns.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+			this.DgvProgress.Columns.Add(columns);
 
-			this.DgvProgress.Columns.Add("期日", "期日");
-			this.DgvProgress.Columns["期日"].Width = UseCsvTbl[CSV_DELIVERY_DAY];
-			this.DgvProgress.Columns["期日"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;//※効果なし
-			this.DgvProgress.Columns["期日"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			columns = new DataGridViewTextBoxColumn();//★
+			//columns.DataPropertyName = "LIMIT";
+			columns.Name = "LIMIT";
+			columns.HeaderText = "期日";
+			columns.Width = UseCsvTbl[CSV_DELIVERY_DAY];
+			columns.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;//※効果なし
+			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			this.DgvProgress.Columns.Add(columns);
+			//this.DgvProgress.Columns.Add("期日", "期日");
+			//this.DgvProgress.Columns["期日"].Width = UseCsvTbl[CSV_DELIVERY_DAY];
+			//this.DgvProgress.Columns["期日"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;//※効果なし
+			//this.DgvProgress.Columns["期日"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+
 
 			// 「残り日数」項目を追加
-			this.DgvProgress.Columns.Add("残り日数", "残り");
-			this.DgvProgress.Columns["残り日数"].Width = UseCsvTbl[CSV_REMAIMING];
-			this.DgvProgress.Columns["残り日数"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;//※効果なし
-			this.DgvProgress.Columns["残り日数"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+			columns = new DataGridViewTextBoxColumn();//★
+			//columns.DataPropertyName = "REMAIMING";
+			columns.Name = "REMAIMING";
+			columns.HeaderText = "残り";
+			columns.Width = UseCsvTbl[CSV_REMAIMING];
+			columns.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;//※効果なし
+			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+			this.DgvProgress.Columns.Add(columns);
+			//this.DgvProgress.Columns.Add("残り日数", "残り");
+			//this.DgvProgress.Columns["残り日数"].Width = UseCsvTbl[CSV_REMAIMING];
+			//this.DgvProgress.Columns["残り日数"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;//※効果なし
+			//this.DgvProgress.Columns["残り日数"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 		}
 
 		private void InitDgvMember()
@@ -313,18 +401,21 @@ namespace RMAnalyser
 							break;
 
 						case CSV_TASK_NAME:     // "題名"
-							this.DgvProgress.Rows[dicRowCount].Cells["題名"].Value = data;
+												//this.DgvProgress.Rows[dicRowCount].Cells["題名"].Value = data;
+							this.DgvProgress.Rows[dicRowCount].Cells["TITLE"].Value = data;
 							break;
 
 						case CSV_DELIVERY_DAY:  // "期日"
-							this.DgvProgress.Rows[dicRowCount].Cells["期日"].Value = data;
+							//this.DgvProgress.Rows[dicRowCount].Cells["期日"].Value = data;
+							this.DgvProgress.Rows[dicRowCount].Cells["LIMIT"].Value = data;
 							break;
 
 						case CSV_PROGRESS_RATE: // "進捗率"
 							break;
 
 						case CSV_PERSON_NAME:   // "担当者"
-							this.DgvProgress.Rows[dicRowCount].Cells["担当者"].Value = data;
+							//this.DgvProgress.Rows[dicRowCount].Cells["担当者"].Value = data;
+							this.DgvProgress.Rows[dicRowCount].Cells["NAME"].Value = data;
 							break;
 
 						case CSV_REMAIMING:		 // "残り日"
@@ -335,13 +426,15 @@ namespace RMAnalyser
 								this.DgvProgress.Rows[dicRowCount]
 									.Cells[(int)MAKE_COLUM._REMAINING].Style.ForeColor = Color.Red;//赤文字
 							}
-							this.DgvProgress.Rows[dicRowCount].Cells["残り日数"].Value = span.Days.ToString() + "日";
+							//this.DgvProgress.Rows[dicRowCount].Cells["残り日数"].Value = span.Days.ToString() + "日";
+							this.DgvProgress.Rows[dicRowCount].Cells["REMAIMING"].Value = span.Days.ToString() + "日";
 							break;
 
 						case CSV_PROGRESS_BAR:	// プログレスバー
 							string progress;
 							bool b3 = dicCell.TryGetValue(CSV_PROGRESS_RATE.ToString(), out progress);
-							this.DgvProgress.Rows[dicRowCount].Cells[(int)MAKE_COLUM._PROGRESS_BAR].Value = Convert.ToInt32(progress);
+							//this.DgvProgress.Rows[dicRowCount].Cells[(int)MAKE_COLUM._PROGRESS_BAR].Value = Convert.ToInt32(progress);
+							this.DgvProgress.Rows[dicRowCount].Cells["BAR"].Value = Convert.ToInt32(progress);
 							break;
 					}
 				}
