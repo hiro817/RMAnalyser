@@ -117,13 +117,12 @@ namespace RMAnalyser
 					Name = "TITLE",
 					DataPropertyName = "Title",
 					HeaderText = "題名",
-					Width = UseCsvTbl[CSV_TASK_NAME]
-					//DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft,
+					Width = UseCsvTbl[CSV_TASK_NAME],
+					//DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft,//何故か指定できない
 				}
 			);
 
 #endif
-			Assert.Equals(3, DgvProgress.ColumnCount);
 
 			columns = new DataGridViewTextBoxColumn();//★
 			columns.Name = "NAME";
@@ -344,7 +343,12 @@ namespace RMAnalyser
 				dicCell.Add(CSV_PROGRESS_BAR.ToString(), UseCsvTbl[CSV_PROGRESS_BAR].ToString());
 
 #if true
-				this.DgvProgress.Rows.Add(dicCell[CSV_TASK_ID.ToString()]);
+				this.DgvProgress.Rows.Add();
+				this.DgvProgress.Rows[dicRowCount].Cells["ID"].Value = dicCell[CSV_TASK_ID.ToString()];
+
+				//this.DgvProgress.Rows.Add(dicCell[CSV_TASK_ID.ToString()]);
+
+
 				this.DgvProgress.Rows[dicRowCount].Cells["TITLE"].Value = dicCell[CSV_TASK_NAME.ToString()];
 				this.DgvProgress.Rows[dicRowCount].Cells["NAME"].Value = dicCell[CSV_PERSON_NAME.ToString()];
 				this.DgvProgress.Rows[dicRowCount].Cells["BAR"].Value = Convert.ToInt32(dicCell[CSV_PROGRESS_RATE.ToString()]);
@@ -418,11 +422,11 @@ namespace RMAnalyser
 				string name = pt.Key;
 				this.DgvMember.Rows.Add(name);
 				this.DgvMember.Rows[row].Cells[1].Value = pt.Value.Count.ToString();
-				//this.DgvMember.Rows[row].Cells[2].Value = personTask.GetAverageProgress(name).ToString("F1") + "%";
 
 				// 「プログレスバー」の内容
 				float rate = personTask.GetAverageProgress(name);
 				this.DgvMember.Rows[row].Cells[2].Value = Convert.ToInt32(rate);
+				//this.DgvMember.Rows[row].Cells[2].Value = personTask.GetAverageProgress(name).ToString("F1") + "%";
 
 				row++;
 			}
