@@ -95,7 +95,7 @@ namespace RMAnalyser
 			//this.DgvProgress.ColumnCount = 6;
 
 			// カラム(ヘッダ)の出力
-			var	columns = new DataGridViewTextBoxColumn();//★
+			var columns = new DataGridViewTextBoxColumn();//★
 			columns.Name = "ID";
 			columns.DataPropertyName = "Id";
 			columns.HeaderText = "#";
@@ -103,6 +103,7 @@ namespace RMAnalyser
 			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 			this.DgvProgress.Columns.Add(columns);
 
+#if false
 			columns = new DataGridViewTextBoxColumn();//★
 			columns.Name = "TITLE";
 			columns.DataPropertyName = "Title";
@@ -110,6 +111,19 @@ namespace RMAnalyser
 			columns.Width = UseCsvTbl[CSV_TASK_NAME];
 			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 			this.DgvProgress.Columns.Add(columns);
+#else
+			this.DgvProgress.Columns.Add(
+				new DataGridViewTextBoxColumn() {
+					Name = "TITLE",
+					DataPropertyName = "Title",
+					HeaderText = "題名",
+					Width = UseCsvTbl[CSV_TASK_NAME]
+					//DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft,
+				}
+			);
+
+#endif
+			Assert.Equals(3, DgvProgress.ColumnCount);
 
 			columns = new DataGridViewTextBoxColumn();//★
 			columns.Name = "NAME";
@@ -267,6 +281,7 @@ namespace RMAnalyser
 					// 横ライン分
 					var dataDic = new Dictionary<string, string>();
 					for (int column = 0; column < values.Length; column++) {
+						// 不要データの除外
 						if (this.UseCsvTbl[column] == 0) continue;
 
 						// 本体データの取得
@@ -412,6 +427,7 @@ namespace RMAnalyser
 				row++;
 			}
 			this.DgvMember.SetGroupTextRowCount();
+
 		}
 
 		private void MakeNoLimitTaskGrid()
@@ -456,4 +472,6 @@ namespace RMAnalyser
 		}
 
 	}
+
 }
+
