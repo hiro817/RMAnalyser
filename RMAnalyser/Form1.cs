@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -17,10 +16,10 @@ namespace RMAnalyser
 		private DGV DgvProgress = new DGV();
 		private DGV DgvMember = new DGV();
 		private DGV DgvNoLimitTask = new DGV();
-
-		private List<Dictionary<string, string>> NoLimitList;
+		private List<Dictionary<int, string>> NoLimitList;
 
 		private readonly string Nobady = "(未割り当て)";
+
 		private readonly int[] UseCsvTbl = {
 			45,		// 00 #(ID)		★CSV_TASK_ID
 			0,		// 01 プロジェクト
@@ -49,6 +48,7 @@ namespace RMAnalyser
 
 		//※下記はswitchで使う場合、readonlyには出来ない
 		private const int CSV_TASK_ID = 0;
+
 		private const int CSV_TASK_NAME = 6;
 		private const int CSV_PERSON_NAME = 8;
 		private const int CSV_DELIVERY_DAY = 13;
@@ -72,7 +72,6 @@ namespace RMAnalyser
 			InitDgvProgress();
 			InitDgvMember();
 			InitDgvNoLimitTask();
-
 		}
 
 		//[Conditional("DEBUG")]
@@ -80,6 +79,91 @@ namespace RMAnalyser
 		//{
 		//	this.textBox開発.Visible = true;
 		//}
+
+		private void Form1_DragEnter(object sender, DragEventArgs e)
+		{
+			// 隠れていても前面にする
+			this.Activate();
+			// ドラッグされたデータがファイルならコピーする
+			if (e.Data.GetDataPresent(DataFormats.FileDrop)) {
+				e.Effect = DragDropEffects.Copy;
+			}
+		}
+
+		private void Form1_DragDrop(object sender, DragEventArgs e)
+		{
+			this.m_ReadFile = "";
+
+			string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+			foreach (var file in files) {
+				if (Path.GetExtension(file) == ".csv") {
+					this.m_ReadFile = file;
+					break;
+				}
+			}
+			if (this.m_ReadFile != "") {
+				this.label情報.Text = "";
+				textBoxファイル名.Text = Path.GetFileName(this.m_ReadFile);// 拡張子ありのファイル名
+				this.label情報.Text = "";
+
+				CsvReader();
+			}
+		}
+
+		private enum MAKE_COLUM
+		{
+			_ID = 0,
+			_TITLE,
+			_PERSON,
+			_PROGRESS_BAR,  //入れ替え
+			_DELIVERY,
+			_REMAINING,     // 残り日数※追加・・・使っているのはこれだけ＠19/12/05
+		}
+
+		private void CsvReader()
+		{
+			var rowDicList = new List<Dictionary<int, string>>();
+			var personsTask = new PersonsTask();
+
+			using (StreamReader sr = new StreamReader(this.m_ReadFile, m_Encod)) {
+				string line;
+				for (int row = 0; (line = sr.ReadLine()) != null; row++) {
+					// カラム名をスキップ
+					if (row == 0) continue;
+
+					string[] values = line.Split(',');
+					// 横ライン分
+					var dataDic = new Dictionary<int, string>();
+
+					for (int column = 0; column < values.Length; column++) {
+						// 不要データの除外
+						if (this.UseCsvTbl[column] == 0) continue;
+
+						// 本体データの取得
+						dataDic.Add(column, values[column]);
+
+						#region 担当者別の進捗情報の取得
+
+						string progressName = this.Nobady;
+						if (values[CSV_PERSON_NAME] != "\"\"") {
+							progressName = values[CSV_PERSON_NAME];
+						}
+						int rate = Convert.ToInt32(values[CSV_PROGRESS_RATE]);
+						if (!personsTask.IsNewPerson(progressName, rate)) {
+							personsTask.AddProgress(progressName, rate);
+						}
+
+						#endregion 担当者別の進捗情報の取得
+					}
+
+					rowDicList.Add(dataDic);
+				}
+			}
+
+			MakeProgressRow(rowDicList);
+			MakePersonTaskGrid(personsTask);
+			MakeNoLimitTaskGrid();
+		}
 
 		private void InitDgvProgress()
 		{
@@ -91,8 +175,6 @@ namespace RMAnalyser
 
 			this.DgvProgress.Columns.Clear();
 			//this.DgvProgress.ScrollBars = ScrollBars.Vertical;//※常に垂直スクロールバーを表示させたい
-
-			//this.DgvProgress.ColumnCount = 6;
 
 			// カラム(ヘッダ)の出力
 			var columns = new DataGridViewTextBoxColumn();//★
@@ -113,7 +195,8 @@ namespace RMAnalyser
 			this.DgvProgress.Columns.Add(columns);
 #else
 			this.DgvProgress.Columns.Add(
-				new DataGridViewTextBoxColumn() {
+				new DataGridViewTextBoxColumn()
+				{
 					Name = "TITLE",
 					DataPropertyName = "Title",
 					HeaderText = "題名",
@@ -162,6 +245,74 @@ namespace RMAnalyser
 			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
 		}
 
+		private void MakeProgressRow(List<Dictionary<int, string>> rowDicList)
+		{
+			this.DgvProgress.Rows.Clear();
+			NoLimitList = new List<Dictionary<int, string>>();
+			int dicRowCount = 0;
+
+			foreach (var dicCell in rowDicList) {
+				string data;
+
+				// 条件を満たしたタスクだけ表示
+#if true
+				if (dicCell[CSV_PROGRESS_RATE] == "100") continue;
+
+				if (dicCell[CSV_PERSON_NAME] == "\"\"") {
+					dicCell[CSV_PERSON_NAME] = this.Nobady;
+					this.NoLimitList.Add(dicCell);
+					continue;
+				}
+
+				if (dicCell[CSV_DELIVERY_DAY] == "\"\"") {
+					this.NoLimitList.Add(dicCell);
+					continue;
+				}
+
+#else
+
+				if (dicCell.TryGetValue(CSV_PERSON_NAME, out data)) {
+					if (data == "\"\"") {
+						dicCell[CSV_PERSON_NAME] = this.Nobady;
+						this.NoLimitList.Add(dicCell);
+						continue;
+					}
+				}
+				if (dicCell.TryGetValue(CSV_PROGRESS_RATE, out data)) {
+					if (data == "100") continue;
+				}
+				if (dicCell.TryGetValue(CSV_DELIVERY_DAY, out data)) {
+					if (data == "\"\"") {
+						this.NoLimitList.Add(dicCell);
+						continue;
+					}
+				}
+#endif
+				// 残り日数の追加
+				dicCell.Add(CSV_REMAIMING, UseCsvTbl[CSV_REMAIMING].ToString());
+
+				// プログレスバーの追加
+				dicCell.Add(CSV_PROGRESS_BAR, UseCsvTbl[CSV_PROGRESS_BAR].ToString());
+
+				this.DgvProgress.Rows.Add();
+				this.DgvProgress.Rows[dicRowCount].Cells["ID"].Value = dicCell[CSV_TASK_ID];
+				this.DgvProgress.Rows[dicRowCount].Cells["TITLE"].Value = dicCell[CSV_TASK_NAME];
+				this.DgvProgress.Rows[dicRowCount].Cells["NAME"].Value = dicCell[CSV_PERSON_NAME];
+				this.DgvProgress.Rows[dicRowCount].Cells["BAR"].Value = Convert.ToInt32(dicCell[CSV_PROGRESS_RATE]);
+				this.DgvProgress.Rows[dicRowCount].Cells["LIMIT"].Value = dicCell[CSV_DELIVERY_DAY];
+
+				DateTime dNow = DateTime.Now.Date;  // 時間なしの今日
+				DateTime dTime = DateTime.Parse(dicCell[CSV_DELIVERY_DAY]);
+				TimeSpan span = dTime - dNow;
+				if (span.Days <= 0) {
+					this.DgvProgress.Rows[dicRowCount].Cells[(int)MAKE_COLUM._REMAINING].Style.ForeColor = Color.Red;//赤文字
+				}
+				this.DgvProgress.Rows[dicRowCount].Cells["REMAIMING"].Value = span.Days.ToString() + "日";
+				dicRowCount++;
+			}
+			this.DgvProgress.SetGroupTextRowCount();
+		}
+
 		private void InitDgvMember()
 		{
 			((System.ComponentModel.ISupportInitialize)(this.DgvMember)).BeginInit();
@@ -190,6 +341,27 @@ namespace RMAnalyser
 			this.DgvMember.Columns["Progress"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
 			((System.ComponentModel.ISupportInitialize)(this.DgvMember)).EndInit();
+		}
+
+		private void MakePersonTaskGrid(PersonsTask personTask)
+		{
+			this.DgvMember.Rows.Clear();
+
+			int row = 0;
+			foreach (var pt in personTask.NameDic) {
+				string name = pt.Key;
+				this.DgvMember.Rows.Add(name);
+
+				this.DgvMember.Rows[row].Cells[1].Value = pt.Value.Count.ToString();
+
+				// 「プログレスバー」の内容
+				float rate = personTask.GetAverageProgress(name);
+				this.DgvMember.Rows[row].Cells[2].Value = Convert.ToInt32(rate);
+				//this.DgvMember.Rows[row].Cells[2].Value = personTask.GetAverageProgress(name).ToString("F1") + "%";
+
+				row++;
+			}
+			this.DgvMember.SetGroupTextRowCount();
 		}
 
 		private void InitDgvNoLimitTask()
@@ -223,259 +395,34 @@ namespace RMAnalyser
 			((System.ComponentModel.ISupportInitialize)(this.DgvNoLimitTask)).EndInit();
 		}
 
-		private void Form1_DragEnter(object sender, DragEventArgs e)
-		{
-			// 隠れていても前面にする
-			this.Activate();
-			// ドラッグされたデータがファイルならコピーする
-			if (e.Data.GetDataPresent(DataFormats.FileDrop)) {
-				e.Effect = DragDropEffects.Copy;
-			}
-		}
-
-		private void Form1_DragDrop(object sender, DragEventArgs e)
-		{
-			this.m_ReadFile = "";
-
-			string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-			foreach (var file in files) {
-				if (Path.GetExtension(file) == ".csv") {
-					this.m_ReadFile = file;
-					break;
-				}
-			}
-			if (this.m_ReadFile != "") {
-				this.label情報.Text = "";
-				textBoxファイル名.Text = Path.GetFileName(this.m_ReadFile);// 拡張子ありのファイル名
-				this.label情報.Text = "";
-
-				CsvReader();
-			}
-		}
-
-		private enum MAKE_COLUM
-		{
-			_ID = 0,
-			_TITLE,
-			_PERSON,
-			_PROGRESS_BAR,//new
-			_DELIVERY,
-			_REMAINING,     // 残り日数※追加
-			//_PROGRESS_BAR,
-		}
-
-		private void CsvReader()
-		{
-			//var headerDic = new Dictionary<string, NameWidth>();
-			var rowDicList = new List<Dictionary<string, string>>();
-			var personsTask = new PersonsTask();
-
-			using (StreamReader sr = new StreamReader(this.m_ReadFile, m_Encod)) {
-				string line;
-				for (int row = 0; (line = sr.ReadLine()) != null; row++) {
-					// カラム名をスキップ
-					if (row == 0) continue;
-
-					string[] values = line.Split(',');
-					// 横ライン分
-					var dataDic = new Dictionary<string, string>();
-					for (int column = 0; column < values.Length; column++) {
-						// 不要データの除外
-						if (this.UseCsvTbl[column] == 0) continue;
-
-						// 本体データの取得
-						dataDic.Add(column.ToString(), values[column]);
-
-						#region 担当者別の進捗情報の取得
-
-						string progressName = this.Nobady;
-						if (values[CSV_PERSON_NAME] != "\"\"") {
-							progressName = values[CSV_PERSON_NAME];
-						}
-						int rate = Convert.ToInt32(values[CSV_PROGRESS_RATE]);
-						if (!personsTask.IsNewPerson(progressName, rate)) {
-							personsTask.AddProgress(progressName, rate);
-						}
-
-						#endregion 担当者別の進捗情報の取得
-					}
-
-					rowDicList.Add(dataDic);
-				}
-			}
-
-			MakeProgressRow(rowDicList);
-			MakePersonTaskGrid(personsTask);
-			MakeNoLimitTaskGrid();
-		}
-
-		private void MakeProgressRow(List<Dictionary<string, string>> rowDicList)
-		{
-			this.DgvProgress.Rows.Clear();
-			NoLimitList = new List<Dictionary<string, string>>();
-			int dicRowCount = 0;
-
-			foreach (var dicCell in rowDicList) {
-				string data;
-
-				// 条件を満たしたタスクだけ表示
-				if (dicCell.TryGetValue(CSV_PERSON_NAME.ToString(), out data)) {
-					if (data == "\"\"") {
-						dicCell[CSV_PERSON_NAME.ToString()] = this.Nobady;
-						this.NoLimitList.Add(dicCell);
-						continue;
-					}
-				}
-				if (dicCell.TryGetValue(CSV_PROGRESS_RATE.ToString(), out data)) {
-					if (data == "100") continue;
-				}
-				if (dicCell.TryGetValue(CSV_DELIVERY_DAY.ToString(), out data)) {
-					if (data == "\"\"") {
-						this.NoLimitList.Add(dicCell);
-						continue;
-					}
-				}
-
-				// 残り日数の追加
-				dicCell.Add(CSV_REMAIMING.ToString(), UseCsvTbl[CSV_REMAIMING].ToString());
-
-				// プログレスバーの追加
-				dicCell.Add(CSV_PROGRESS_BAR.ToString(), UseCsvTbl[CSV_PROGRESS_BAR].ToString());
-
-#if true
-				this.DgvProgress.Rows.Add();
-				this.DgvProgress.Rows[dicRowCount].Cells["ID"].Value = dicCell[CSV_TASK_ID.ToString()];
-
-				//this.DgvProgress.Rows.Add(dicCell[CSV_TASK_ID.ToString()]);
-
-
-				this.DgvProgress.Rows[dicRowCount].Cells["TITLE"].Value = dicCell[CSV_TASK_NAME.ToString()];
-				this.DgvProgress.Rows[dicRowCount].Cells["NAME"].Value = dicCell[CSV_PERSON_NAME.ToString()];
-				this.DgvProgress.Rows[dicRowCount].Cells["BAR"].Value = Convert.ToInt32(dicCell[CSV_PROGRESS_RATE.ToString()]);
-				this.DgvProgress.Rows[dicRowCount].Cells["LIMIT"].Value = dicCell[CSV_DELIVERY_DAY.ToString()];
-
-				DateTime dNow = DateTime.Now.Date;  // 時間なしの今日
-				DateTime dTime = DateTime.Parse(dicCell[CSV_DELIVERY_DAY.ToString()]);
-				TimeSpan span = dTime - dNow;
-				if (span.Days <= 0) {
-					this.DgvProgress.Rows[dicRowCount].Cells[(int)MAKE_COLUM._REMAINING].Style.ForeColor = Color.Red;//赤文字
-				}
-				this.DgvProgress.Rows[dicRowCount].Cells["REMAIMING"].Value = span.Days.ToString() + "日";
-#else
-
-				foreach (var cell in dicCell) {
-					bool b2 = dicCell.TryGetValue(cell.Key, out data);
-					if (!b2) {
-						MessageBox.Show("データが読込めない");
-						continue;
-					}
-					switch (Convert.ToInt32(cell.Key)) {
-						case CSV_TASK_ID:		// "#"
-							this.DgvProgress.Rows.Add(data);
-							break;
-
-						case CSV_TASK_NAME:     // "題名"
-							this.DgvProgress.Rows[dicRowCount].Cells["TITLE"].Value = data;
-							break;
-
-						//case CSV_PROGRESS_RATE: // "進捗率"はスキップ
-						//	break;
-
-						case CSV_PERSON_NAME:   // "担当者"
-							this.DgvProgress.Rows[dicRowCount].Cells["NAME"].Value = data;
-							break;
-
-						case CSV_PROGRESS_BAR:  // プログレスバー
-							string progress;
-							bool b3 = dicCell.TryGetValue(CSV_PROGRESS_RATE.ToString(), out progress);
-							this.DgvProgress.Rows[dicRowCount].Cells["BAR"].Value = Convert.ToInt32(progress);
-							break;
-
-						case CSV_DELIVERY_DAY:  // "期日"
-							this.DgvProgress.Rows[dicRowCount].Cells["LIMIT"].Value = data;
-							break;
-
-						case CSV_REMAIMING:		 // "残り日"
-							DateTime dNow = DateTime.Now.Date;  // 時間なしの今日
-							DateTime dTime = DateTime.Parse(dicCell[CSV_DELIVERY_DAY.ToString()]);
-							TimeSpan span = dTime - dNow;
-							if (span.Days <= 0) {
-								this.DgvProgress.Rows[dicRowCount]
-									.Cells[(int)MAKE_COLUM._REMAINING].Style.ForeColor = Color.Red;//赤文字
-							}
-							this.DgvProgress.Rows[dicRowCount].Cells["REMAIMING"].Value = span.Days.ToString() + "日";
-							break;
-					}
-				}
-#endif
-				dicRowCount++;
-			}
-			this.DgvProgress.SetGroupTextRowCount();
-		}
-
-		private void MakePersonTaskGrid(PersonsTask personTask)
-		{
-			this.DgvMember.Rows.Clear();
-
-			int row = 0;
-			foreach (var pt in personTask.NameDic) {
-				string name = pt.Key;
-				this.DgvMember.Rows.Add(name);
-				this.DgvMember.Rows[row].Cells[1].Value = pt.Value.Count.ToString();
-
-				// 「プログレスバー」の内容
-				float rate = personTask.GetAverageProgress(name);
-				this.DgvMember.Rows[row].Cells[2].Value = Convert.ToInt32(rate);
-				//this.DgvMember.Rows[row].Cells[2].Value = personTask.GetAverageProgress(name).ToString("F1") + "%";
-
-				row++;
-			}
-			this.DgvMember.SetGroupTextRowCount();
-
-		}
-
 		private void MakeNoLimitTaskGrid()
 		{
 			this.DgvNoLimitTask.Rows.Clear();
 
 			int row = 0;
 			foreach (var dic in this.NoLimitList) {
-				this.DgvNoLimitTask.Rows.Add(dic[CSV_TASK_ID.ToString()]);
-				this.DgvNoLimitTask.Rows[row].Cells["題名"].Value = dic[CSV_TASK_NAME.ToString()];
-				this.DgvNoLimitTask.Rows[row].Cells["担当者"].Value = dic[CSV_PERSON_NAME.ToString()];
-				this.DgvNoLimitTask.Rows[row].Cells["Progress"].Value = Convert.ToInt32(dic[CSV_PROGRESS_RATE.ToString()]);
+				this.DgvNoLimitTask.Rows.Add(dic[CSV_TASK_ID]);
+				this.DgvNoLimitTask.Rows[row].Cells["題名"].Value = dic[CSV_TASK_NAME];
+				this.DgvNoLimitTask.Rows[row].Cells["担当者"].Value = dic[CSV_PERSON_NAME];
+				this.DgvNoLimitTask.Rows[row].Cells["Progress"].Value = Convert.ToInt32(dic[CSV_PROGRESS_RATE]);
 				row++;
 			}
 			this.DgvNoLimitTask.SetGroupTextRowCount();
 		}
 
-		//private class NameWidth
-		//{
-		//	public int Width { get; set; }
-		//	public string Name { get; set; }
-
-		//	public NameWidth(string name, int width)
-		//	{
-		//		this.Name = name;
-		//		this.Width = width;
-		//	}
-		//}
-
 		private void button担当者別_Click(object sender, EventArgs e)
 		{
-			this.label情報.Text = "担当者別のタスクを"+this.DgvMember.ButtonClick();
+			this.label情報.Text = "担当者別のタスクを" + this.DgvMember.ButtonClick();
 		}
 
 		private void button期日あり進捗_Click(object sender, EventArgs e)
 		{
 			this.label情報.Text = "期日あり進捗のタスクを" + this.DgvProgress.ButtonClick();
 		}
+
 		private void button期日未定タスク_Click(object sender, EventArgs e)
 		{
 			this.label情報.Text = "期日未定タスクを" + this.DgvNoLimitTask.ButtonClick();
 		}
-
 	}
-
 }
-
