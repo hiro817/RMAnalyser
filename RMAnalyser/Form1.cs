@@ -340,19 +340,41 @@ namespace RMAnalyser
 			this.DgvMember.Rows.Clear();
 
 			int row = 0;
-			foreach (var pt in personTask.NameDic) {
+#if true//名前順にソート→ （未割り当て）が先頭になる
+			var sort = new SortedDictionary<string, List<float>>(personTask.NameDic);
+			foreach (var pt in sort) {
 				string name = pt.Key;
+				// 担当者
 				this.DgvMember.Rows.Add(name);
 
+				// タスク数
 				this.DgvMember.Rows[row].Cells[1].Value = pt.Value.Count.ToString();
 
-				// 「プログレスバー」の内容
-				float rate = personTask.GetAverageProgress(name);
-				this.DgvMember.Rows[row].Cells[2].Value = Convert.ToInt32(rate);
+				// 進捗率
+				this.DgvMember.Rows[row].Cells[2].Value = Convert.ToInt32(personTask.GetAverageProgress(name));
+				//this.DgvMember.Rows[row].Cells[2].Value = personTask.GetAverageProgress(name).ToString("F1") + "%";
+
+				row++;
+
+			}
+
+#else
+			foreach (var pt in personTask.NameDic) {
+				string name = pt.Key;
+				// 担当者
+				this.DgvMember.Rows.Add(name);
+
+				// タスク数
+				this.DgvMember.Rows[row].Cells[1].Value = pt.Value.Count.ToString();
+
+				// 進捗率
+				this.DgvMember.Rows[row].Cells[2].Value = Convert.ToInt32(personTask.GetAverageProgress(name));
 				//this.DgvMember.Rows[row].Cells[2].Value = personTask.GetAverageProgress(name).ToString("F1") + "%";
 
 				row++;
 			}
+#endif
+
 			this.DgvMember.SetGroupTextRowCount();
 		}
 

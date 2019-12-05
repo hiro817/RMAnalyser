@@ -45,6 +45,5 @@ namespace RMAnalyser
 
 		public float GetAverageProgress(string name) => m_NameDic[name].Average();
 
-
 	}
 }
