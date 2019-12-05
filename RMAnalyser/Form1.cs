@@ -60,14 +60,10 @@ namespace RMAnalyser
 		{
 			InitializeComponent();
 
-			//this.CsvDic = Enum.GetNames(typeof(CSVDIC));
-			//foreach (string e in this.CsvDic) {
-			//	textBox開発.Text += e + "\r\n";
-			//}
-
 			this.Text = "RMAnalyser Ver." + Version;
 			this.label情報.Text = "CSVファイルをドラッグ＆ドロップしてください";
 			this.groupBox1.Text = "読み込みCSVファイル";
+			this.textBox開発.Text = "進捗率100%は含まれていません\r\n";
 
 			InitDgvProgress();
 			InitDgvMember();
@@ -144,13 +140,19 @@ namespace RMAnalyser
 
 						#region 担当者別の進捗情報の取得
 
-						string progressName = this.Nobady;
-						if (values[CSV_PERSON_NAME] != "\"\"") {
-							progressName = values[CSV_PERSON_NAME];
-						}
-						int rate = Convert.ToInt32(values[CSV_PROGRESS_RATE]);
-						if (!personsTask.IsNewPerson(progressName, rate)) {
-							personsTask.AddProgress(progressName, rate);
+						if (column == CSV_PERSON_NAME) {
+							string progressName = this.Nobady;
+							if (values[CSV_PERSON_NAME] != "\"\"") {
+								progressName = values[CSV_PERSON_NAME];
+							}
+							else {
+								progressName = this.Nobady;
+							}
+
+							int rate = Convert.ToInt32(values[CSV_PROGRESS_RATE]);
+							if (!personsTask.IsNewPerson(progressName, rate)) {
+								personsTask.AddProgress(progressName, rate);
+							}
 						}
 
 						#endregion 担当者別の進捗情報の取得
@@ -170,7 +172,6 @@ namespace RMAnalyser
 			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
 
 			this.DgvProgress.SetGroupTextRowCount();
-
 			this.DgvProgress.Init(this.groupBox3, "期日ありタスク進捗情報", "");
 
 			this.DgvProgress.Columns.Clear();
@@ -252,42 +253,31 @@ namespace RMAnalyser
 			int dicRowCount = 0;
 
 			foreach (var dicCell in rowDicList) {
-				string data;
-
 				// 条件を満たしたタスクだけ表示
-#if true
 				if (dicCell[CSV_PROGRESS_RATE] == "100") continue;
 
-				if (dicCell[CSV_PERSON_NAME] == "\"\"") {
+				string name = dicCell[CSV_PERSON_NAME];
+				string day = dicCell[CSV_DELIVERY_DAY];
+
+				if (name == "\"\"") {
+					dicCell[CSV_PERSON_NAME] = this.Nobady;
+				}
+
+				if (name == "\"\"" && day == "\"\"") {
 					dicCell[CSV_PERSON_NAME] = this.Nobady;
 					this.NoLimitList.Add(dicCell);
 					continue;
 				}
-
-				if (dicCell[CSV_DELIVERY_DAY] == "\"\"") {
+				else
+				if (day == "\"\"") {
 					this.NoLimitList.Add(dicCell);
 					continue;
 				}
+				//else
+				//if (name == "\"\"") {
+				//	dicCell[CSV_PERSON_NAME] = this.Nobady;
+				//}
 
-#else
-
-				if (dicCell.TryGetValue(CSV_PERSON_NAME, out data)) {
-					if (data == "\"\"") {
-						dicCell[CSV_PERSON_NAME] = this.Nobady;
-						this.NoLimitList.Add(dicCell);
-						continue;
-					}
-				}
-				if (dicCell.TryGetValue(CSV_PROGRESS_RATE, out data)) {
-					if (data == "100") continue;
-				}
-				if (dicCell.TryGetValue(CSV_DELIVERY_DAY, out data)) {
-					if (data == "\"\"") {
-						this.NoLimitList.Add(dicCell);
-						continue;
-					}
-				}
-#endif
 				// 残り日数の追加
 				dicCell.Add(CSV_REMAIMING, UseCsvTbl[CSV_REMAIMING].ToString());
 
@@ -316,6 +306,8 @@ namespace RMAnalyser
 		private void InitDgvMember()
 		{
 			((System.ComponentModel.ISupportInitialize)(this.DgvMember)).BeginInit();
+
+			this.DgvMember.Columns.Clear();
 
 			//this.DgvMember.Init(this.groupBox2, "担当者別のタスク", "No.");//※貼付け時に「No.」が不要になるので無くした＠19/12/03
 			this.DgvMember.Init(this.groupBox2, "担当者別のタスク");
@@ -367,6 +359,8 @@ namespace RMAnalyser
 		private void InitDgvNoLimitTask()
 		{
 			((System.ComponentModel.ISupportInitialize)(this.DgvNoLimitTask)).BeginInit();
+
+			this.DgvNoLimitTask.Columns.Clear();
 
 			this.DgvNoLimitTask.Init(this.groupBox4, "期日未定のタスク", "");
 
