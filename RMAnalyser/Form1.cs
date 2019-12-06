@@ -9,8 +9,9 @@ namespace RMAnalyser
 {
 	public partial class Form1 : Form
 	{
-		private readonly string Version = "1.20";
+		private readonly string Version = "2.00";
 		/*
+			Ver.2.00	19/12/06	DGVの内容の進捗率には％を付けてクリップボードにコピー
 			Ver.1.20	19/12/05	期日ありのDGVの項目を変更（＃と題名を右側に移動）／進捗率に％を追加
 			Ver.1.10	19/12/05	担当者別タスク数が間違っていた／期日未定タスクに（未割り当て）も表示
 		*/
@@ -185,7 +186,6 @@ namespace RMAnalyser
 			// カラム(ヘッダ)の出力
 			DataGridViewTextBoxColumn columns;
 
-
 			columns = new DataGridViewTextBoxColumn();//★
 			columns.Name = "NAME";
 			columns.DataPropertyName = "Name";
@@ -221,11 +221,6 @@ namespace RMAnalyser
 			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 			this.DgvProgress.Columns.Add(columns);
 
-
-
-
-
-
 			columns = new DataGridViewTextBoxColumn();//★
 			columns.Name = "ID";
 			columns.DataPropertyName = "Id";
@@ -234,7 +229,6 @@ namespace RMAnalyser
 			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 			this.DgvProgress.Columns.Add(columns);
 
-#if true
 			columns = new DataGridViewTextBoxColumn();//★
 			columns.Name = "TITLE";
 			columns.DataPropertyName = "Title";
@@ -242,20 +236,6 @@ namespace RMAnalyser
 			columns.Width = UseCsvTbl[CSV_TASK_NAME];
 			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 			this.DgvProgress.Columns.Add(columns);
-#else
-			this.DgvProgress.Columns.Add(
-				new DataGridViewTextBoxColumn()
-				{
-					Name = "TITLE",
-					DataPropertyName = "Title",
-					HeaderText = "題名",
-					Width = UseCsvTbl[CSV_TASK_NAME],
-					//DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft,//何故か指定できない
-				}
-			);
-
-#endif
-
 
 			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
 		}
@@ -287,10 +267,6 @@ namespace RMAnalyser
 					this.NoLimitList.Add(dicCell);
 					continue;
 				}
-				//else
-				//if (name == "\"\"") {
-				//	dicCell[CSV_PERSON_NAME] = this.Nobady;
-				//}
 
 				// 残り日数の追加
 				dicCell.Add(CSV_REMAIMING, UseCsvTbl[CSV_REMAIMING].ToString());
@@ -370,9 +346,7 @@ namespace RMAnalyser
 				//this.DgvMember.Rows[row].Cells[2].Value = personTask.GetAverageProgress(name).ToString("F1") + "%";
 
 				row++;
-
 			}
-
 #else
 			foreach (var pt in personTask.NameDic) {
 				string name = pt.Key;
@@ -443,25 +417,20 @@ namespace RMAnalyser
 
 		private void button担当者別_Click(object sender, EventArgs e)
 		{
-			//this.label情報.Text = "担当者別のタスクを" + this.DgvMember.ButtonClick();
-			//DgvFile.Out(this.DgvMember, 2);
+			this.label情報.Text = "担当者別タスクをクリップボードにコピーしました！";
 			this.DgvMember.CopyToClipboard(2);
 		}
 
 		private void button期日あり進捗_Click(object sender, EventArgs e)
 		{
-			//this.label情報.Text = "期日あり進捗のタスクを" + this.DgvProgress.ButtonClick();
-			//DgvFile.Out(this.DgvProgress, 1);
+			this.label情報.Text = "期日あり進捗タスクをクリップボードにコピーしました！";
 			this.DgvProgress.CopyToClipboard(1);
-
 		}
 
 		private void button期日未定タスク_Click(object sender, EventArgs e)
 		{
-			//this.label情報.Text = "期日未定タスクを" + this.DgvNoLimitTask.ButtonClick();
-			//DgvFile.Out(this.DgvNoLimitTask, 3);
+			this.label情報.Text = "期日未定タスクをクリップボードにコピーしました！";
 			this.DgvNoLimitTask.CopyToClipboard(3);
-
 		}
 	}
 }

@@ -85,65 +85,33 @@ namespace RMAnalyser
 			SetGroupTextRowCount();
 		}
 
-#if false//未使用になる予定
-		public string ButtonClick()
-		{
-			this.SelectAll();
-			this.ClipboardCopyMode = DataGridViewClipboardCopyMode.EnableAlwaysIncludeHeaderText;
-			Clipboard.SetDataObject(this.GetClipboardContent());
-
-			return "クリップボードにコピーしました！";
-		}
-#endif
 		public void CopyToClipboard(int percentColumn = -1)
 		{
 			string copyText = "";
 
-
 			int colCount = this.Columns.Count;
 
-			//List<String> colList = new List<string>();
 			for (int i = 0; i < colCount; i++) {
-				//colList.Add(this.Columns[i].HeaderCell.Value.ToString());
-
 				copyText += this.Columns[i].HeaderCell.Value.ToString() + "\t";
 			}
 			copyText += "\r\n";
 
-			//String[] headArray = colList.ToArray();
-			//String headData = String.Join("\t", headArray);
-
-
 			// 行
 			int rowCount = this.Rows.Count;
 			for (int row = 0; row < rowCount; row++) {
-
 				// 列
 				for (int col = 0; col < colCount; col++) {
-					string data = this[col, row].Value.ToString();
+					// 前後の空白文字を削除してコピー
+					string data = this[col, row].Value.ToString().Trim();
 					if (percentColumn != -1 && percentColumn == col) {
 						data += "%";
 					}
-					//colList.Add(data + "\t");
 					copyText += data + "\t";
 				}
-				// 配列に変換
-				//String[] colArray = colList.ToArray();
 				copyText += "\r\n";
-
-				// CSV形式に変換
-				//String strCsvData = String.Join(",", colArray);
-				//writer.WriteLine(strCsvData);
 			}
-
-			//String[] colArray = colList.ToArray();
-
-			//String strCsvData = String.Join("\t", colArray);
-
 			this.ClipboardCopyMode = DataGridViewClipboardCopyMode.EnableAlwaysIncludeHeaderText;
-			//Clipboard.SetData(DataFormats.Text, colArray);
 			Clipboard.SetData(DataFormats.Text, copyText);
-
 		}
 
 		public void SetGroupTextRowCount()
