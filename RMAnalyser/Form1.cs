@@ -9,7 +9,12 @@ namespace RMAnalyser
 {
 	public partial class Form1 : Form
 	{
-		private readonly string Version = "1.00";
+		private readonly string Version = "1.20";
+		/*
+			Ver.1.20	19/12/05	期日ありのDGVの項目を変更（＃と題名を右側に移動）／進捗率に％を追加
+			Ver.1.10	19/12/05	担当者別タスク数が間違っていた／期日未定タスクに（未割り当て）も表示
+		*/
+
 		private string m_ReadFile;
 		private readonly Encoding m_Encod = Encoding.GetEncoding("Shift_JIS");
 
@@ -178,35 +183,8 @@ namespace RMAnalyser
 			//this.DgvProgress.ScrollBars = ScrollBars.Vertical;//※常に垂直スクロールバーを表示させたい
 
 			// カラム(ヘッダ)の出力
-			var columns = new DataGridViewTextBoxColumn();//★
-			columns.Name = "ID";
-			columns.DataPropertyName = "Id";
-			columns.HeaderText = "#";
-			columns.Width = UseCsvTbl[CSV_TASK_ID];
-			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
-			this.DgvProgress.Columns.Add(columns);
+			DataGridViewTextBoxColumn columns;
 
-#if false
-			columns = new DataGridViewTextBoxColumn();//★
-			columns.Name = "TITLE";
-			columns.DataPropertyName = "Title";
-			columns.HeaderText = "題名";
-			columns.Width = UseCsvTbl[CSV_TASK_NAME];
-			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
-			this.DgvProgress.Columns.Add(columns);
-#else
-			this.DgvProgress.Columns.Add(
-				new DataGridViewTextBoxColumn()
-				{
-					Name = "TITLE",
-					DataPropertyName = "Title",
-					HeaderText = "題名",
-					Width = UseCsvTbl[CSV_TASK_NAME],
-					//DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft,//何故か指定できない
-				}
-			);
-
-#endif
 
 			columns = new DataGridViewTextBoxColumn();//★
 			columns.Name = "NAME";
@@ -220,7 +198,7 @@ namespace RMAnalyser
 			var pgb = new DataGridViewProgressBarColumn();
 			pgb.Name = "BAR";
 			pgb.DataPropertyName = "Progress";
-			pgb.HeaderText = "進捗率";
+			pgb.HeaderText = "進捗率%";
 			pgb.Width = UseCsvTbl[CSV_PROGRESS_BAR];
 			pgb.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
 			this.DgvProgress.Columns.Add(pgb);
@@ -242,6 +220,42 @@ namespace RMAnalyser
 			columns.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;//※効果なし?
 			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 			this.DgvProgress.Columns.Add(columns);
+
+
+
+
+
+
+			columns = new DataGridViewTextBoxColumn();//★
+			columns.Name = "ID";
+			columns.DataPropertyName = "Id";
+			columns.HeaderText = "#";
+			columns.Width = UseCsvTbl[CSV_TASK_ID];
+			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			this.DgvProgress.Columns.Add(columns);
+
+#if true
+			columns = new DataGridViewTextBoxColumn();//★
+			columns.Name = "TITLE";
+			columns.DataPropertyName = "Title";
+			columns.HeaderText = "題名";
+			columns.Width = UseCsvTbl[CSV_TASK_NAME];
+			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			this.DgvProgress.Columns.Add(columns);
+#else
+			this.DgvProgress.Columns.Add(
+				new DataGridViewTextBoxColumn()
+				{
+					Name = "TITLE",
+					DataPropertyName = "Title",
+					HeaderText = "題名",
+					Width = UseCsvTbl[CSV_TASK_NAME],
+					//DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft,//何故か指定できない
+				}
+			);
+
+#endif
+
 
 			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
 		}
@@ -294,10 +308,11 @@ namespace RMAnalyser
 				DateTime dNow = DateTime.Now.Date;  // 時間なしの今日
 				DateTime dTime = DateTime.Parse(dicCell[CSV_DELIVERY_DAY]);
 				TimeSpan span = dTime - dNow;
-				if (span.Days <= 0) {
-					this.DgvProgress.Rows[dicRowCount].Cells[(int)MAKE_COLUM._REMAINING].Style.ForeColor = Color.Red;//赤文字
-				}
 				this.DgvProgress.Rows[dicRowCount].Cells["REMAIMING"].Value = span.Days.ToString() + "日";
+				if (span.Days <= 0) {
+					this.DgvProgress.Rows[dicRowCount].Cells["REMAIMING"].Style.ForeColor = Color.Red;//赤文字
+				}
+
 				dicRowCount++;
 			}
 			this.DgvProgress.SetGroupTextRowCount();
@@ -327,7 +342,7 @@ namespace RMAnalyser
 			pgb.DataPropertyName = "Progress";
 			pgb.Name = "Progress";
 			//pgb.HeaderText = "平均進捗率";
-			pgb.HeaderText = "平均";
+			pgb.HeaderText = "平均%";
 			this.DgvMember.Columns.Add(pgb);
 			this.DgvMember.Columns["Progress"].Width = UseCsvTbl[CSV_PROGRESS_BAR];//75;
 			this.DgvMember.Columns["Progress"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
@@ -402,7 +417,7 @@ namespace RMAnalyser
 			// 「プログレスバー」項目を追加
 			var pgb = new DataGridViewProgressBarColumn();
 			pgb.DataPropertyName = "Progress";
-			pgb.HeaderText = "進捗率";
+			pgb.HeaderText = "進捗率%";
 			pgb.Name = "Progress";
 			this.DgvNoLimitTask.Columns.Add(pgb);
 			this.DgvNoLimitTask.Columns["Progress"].Width = UseCsvTbl[CSV_PROGRESS_BAR];
