@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Windows.Forms;
 
 namespace RMAnalyser
 {
-	class DGV : DataGridView
+	internal class DGV : DataGridView
 	{
 		public DGV() : base()
 		{
@@ -120,6 +118,5 @@ namespace RMAnalyser
 				this.ParentGroupBox.Text = this.GBText + " (" + this.RowCount.ToString() + ")";
 			}
 		}
-
 	}
 }

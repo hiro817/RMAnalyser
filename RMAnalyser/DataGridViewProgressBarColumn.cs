@@ -119,7 +119,6 @@ namespace RMAnalyser
 		public override object DefaultNewRowValue => 0;
 #endif
 
-
 		//新しいプロパティを追加しているため、
 		// Cloneメソッドをオーバーライドする必要がある
 		public override object Clone()
