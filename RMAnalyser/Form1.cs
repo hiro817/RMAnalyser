@@ -198,7 +198,7 @@ namespace RMAnalyser
 			var pgb = new DataGridViewProgressBarColumn();
 			pgb.Name = "BAR";
 			pgb.DataPropertyName = "Progress";
-			pgb.HeaderText = "進捗率%";
+			pgb.HeaderText = "進捗率";
 			pgb.Width = UseCsvTbl[CSV_PROGRESS_BAR];
 			pgb.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
 			this.DgvProgress.Columns.Add(pgb);
@@ -342,7 +342,7 @@ namespace RMAnalyser
 			pgb.DataPropertyName = "Progress";
 			pgb.Name = "Progress";
 			//pgb.HeaderText = "平均進捗率";
-			pgb.HeaderText = "平均%";
+			pgb.HeaderText = "平均";
 			this.DgvMember.Columns.Add(pgb);
 			this.DgvMember.Columns["Progress"].Width = UseCsvTbl[CSV_PROGRESS_BAR];//75;
 			this.DgvMember.Columns["Progress"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
@@ -417,7 +417,7 @@ namespace RMAnalyser
 			// 「プログレスバー」項目を追加
 			var pgb = new DataGridViewProgressBarColumn();
 			pgb.DataPropertyName = "Progress";
-			pgb.HeaderText = "進捗率%";
+			pgb.HeaderText = "進捗率";
 			pgb.Name = "Progress";
 			this.DgvNoLimitTask.Columns.Add(pgb);
 			this.DgvNoLimitTask.Columns["Progress"].Width = UseCsvTbl[CSV_PROGRESS_BAR];
@@ -443,17 +443,25 @@ namespace RMAnalyser
 
 		private void button担当者別_Click(object sender, EventArgs e)
 		{
-			this.label情報.Text = "担当者別のタスクを" + this.DgvMember.ButtonClick();
+			//this.label情報.Text = "担当者別のタスクを" + this.DgvMember.ButtonClick();
+			//DgvFile.Out(this.DgvMember, 2);
+			this.DgvMember.CopyToClipboard(2);
 		}
 
 		private void button期日あり進捗_Click(object sender, EventArgs e)
 		{
-			this.label情報.Text = "期日あり進捗のタスクを" + this.DgvProgress.ButtonClick();
+			//this.label情報.Text = "期日あり進捗のタスクを" + this.DgvProgress.ButtonClick();
+			//DgvFile.Out(this.DgvProgress, 1);
+			this.DgvProgress.CopyToClipboard(1);
+
 		}
 
 		private void button期日未定タスク_Click(object sender, EventArgs e)
 		{
-			this.label情報.Text = "期日未定タスクを" + this.DgvNoLimitTask.ButtonClick();
+			//this.label情報.Text = "期日未定タスクを" + this.DgvNoLimitTask.ButtonClick();
+			//DgvFile.Out(this.DgvNoLimitTask, 3);
+			this.DgvNoLimitTask.CopyToClipboard(3);
+
 		}
 	}
 }
