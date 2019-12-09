@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
@@ -9,8 +10,9 @@ namespace RMAnalyser
 {
 	public partial class Form1 : Form
 	{
-		private readonly string Version = "2.00";
+		private readonly string Version = "2.10";
 		/*
+			Ver.2.10	19/12/09	担当者の（未割り当て）が先頭になるようにソート
 			Ver.2.00	19/12/06	DGVの内容の進捗率には％を付けてクリップボードにコピー
 						19/12/09	「すべて項目」のCSVだけ処理するように変更
 			Ver.1.20	19/12/05	期日ありのDGVの項目を変更（＃と題名を右側に移動）／進捗率に％を追加
@@ -27,6 +29,7 @@ namespace RMAnalyser
 
 		private readonly string ReadableCsvWord = "#,プロジェクト,トラッカー,親チケット,ステータス,優先度,題名,作成者,担当者,更新日,カテゴリ,対象バージョン,開始日,期日,予定工数,進捗率,作成日,終了日,関連するチケット,プライベート";
 		private readonly string Nobady = "(未割り当て)";
+
 		private readonly int[] UseCsvTbl = {
 			45,		// 00 #(ID)		★CSV_TASK_ID
 			0,		// 01 プロジェクト
@@ -113,16 +116,6 @@ namespace RMAnalyser
 			}
 		}
 
-		private enum MAKE_COLUM
-		{
-			_ID = 0,
-			_TITLE,
-			_PERSON,
-			_PROGRESS_BAR,  //入れ替え
-			_DELIVERY,
-			_REMAINING,     // 残り日数※追加・・・使っているのはこれだけ＠19/12/05
-		}
-
 		private void CsvReader()
 		{
 			var rowDicList = new List<Dictionary<int, string>>();
@@ -134,20 +127,18 @@ namespace RMAnalyser
 					// カラム名をスキップ
 					if (row == 0) {
 						if (line != this.ReadableCsvWord) {
-							MessageBox.Show("RedmineのCSVは「すべての項目」を選択したファイルを使用してください。",
+							MessageBox.Show(
+								"RedmineのCSVは「すべての項目」を選択したファイルを使用してください。",
 								"エラー",
 								MessageBoxButtons.OK,
 								MessageBoxIcon.Error);
 							return;
 						}
-
 						continue;
 					}
-
 					string[] values = line.Split(',');
 					// 横ライン分
 					var dataDic = new Dictionary<int, string>();
-
 					for (int column = 0; column < values.Length; column++) {
 						// 不要データの除外
 						if (this.UseCsvTbl[column] == 0) continue;
@@ -257,7 +248,9 @@ namespace RMAnalyser
 			NoLimitList = new List<Dictionary<int, string>>();
 			int dicRowCount = 0;
 
-			foreach (var dicCell in rowDicList) {
+			//名前順にソート→ （未割り当て）が先頭を先頭にする
+			var sort = rowDicList.OrderBy(n => n[CSV_PERSON_NAME].ToString()).ToList();
+			foreach (var dicCell in sort) {
 				// 条件を満たしたタスクだけ表示
 				if (dicCell[CSV_PROGRESS_RATE] == "100") continue;
 
@@ -299,7 +292,6 @@ namespace RMAnalyser
 				if (span.Days <= 0) {
 					this.DgvProgress.Rows[dicRowCount].Cells["REMAIMING"].Style.ForeColor = Color.Red;//赤文字
 				}
-
 				dicRowCount++;
 			}
 			this.DgvProgress.SetGroupTextRowCount();
@@ -328,8 +320,8 @@ namespace RMAnalyser
 			var pgb = new DataGridViewProgressBarColumn();
 			pgb.DataPropertyName = "Progress";
 			pgb.Name = "Progress";
-			//pgb.HeaderText = "平均進捗率";
-			pgb.HeaderText = "平均";
+			pgb.HeaderText = "平均進捗率";
+			//pgb.HeaderText = "平均";↑でも大丈夫だった＠19/12/09
 			this.DgvMember.Columns.Add(pgb);
 			this.DgvMember.Columns["Progress"].Width = UseCsvTbl[CSV_PROGRESS_BAR];//75;
 			this.DgvMember.Columns["Progress"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
@@ -340,41 +332,20 @@ namespace RMAnalyser
 		private void MakePersonTaskGrid(PersonsTask personTask)
 		{
 			this.DgvMember.Rows.Clear();
-
 			int row = 0;
-#if true//名前順にソート→ （未割り当て）が先頭になる
+			//名前順にソート→ （未割り当て）を先頭にする
 			var sort = new SortedDictionary<string, List<float>>(personTask.NameDic);
 			foreach (var pt in sort) {
 				string name = pt.Key;
 				// 担当者
 				this.DgvMember.Rows.Add(name);
-
 				// タスク数
 				this.DgvMember.Rows[row].Cells[1].Value = pt.Value.Count.ToString();
-
 				// 進捗率
 				this.DgvMember.Rows[row].Cells[2].Value = Convert.ToInt32(personTask.GetAverageProgress(name));
 				//this.DgvMember.Rows[row].Cells[2].Value = personTask.GetAverageProgress(name).ToString("F1") + "%";
-
 				row++;
 			}
-#else
-			foreach (var pt in personTask.NameDic) {
-				string name = pt.Key;
-				// 担当者
-				this.DgvMember.Rows.Add(name);
-
-				// タスク数
-				this.DgvMember.Rows[row].Cells[1].Value = pt.Value.Count.ToString();
-
-				// 進捗率
-				this.DgvMember.Rows[row].Cells[2].Value = Convert.ToInt32(personTask.GetAverageProgress(name));
-				//this.DgvMember.Rows[row].Cells[2].Value = personTask.GetAverageProgress(name).ToString("F1") + "%";
-
-				row++;
-			}
-#endif
-
 			this.DgvMember.SetGroupTextRowCount();
 		}
 
@@ -416,7 +387,10 @@ namespace RMAnalyser
 			this.DgvNoLimitTask.Rows.Clear();
 
 			int row = 0;
-			foreach (var dic in this.NoLimitList) {
+
+			//名前順にソート→ （未割り当て）を先頭にする
+			var sort = this.NoLimitList.OrderBy(n => n[CSV_PERSON_NAME].ToString()).ToList();
+			foreach (var dic in sort) {
 				this.DgvNoLimitTask.Rows.Add(dic[CSV_TASK_ID]);
 				this.DgvNoLimitTask.Rows[row].Cells["題名"].Value = dic[CSV_TASK_NAME];
 				this.DgvNoLimitTask.Rows[row].Cells["担当者"].Value = dic[CSV_PERSON_NAME];
