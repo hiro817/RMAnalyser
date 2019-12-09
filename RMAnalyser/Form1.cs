@@ -12,6 +12,7 @@ namespace RMAnalyser
 		private readonly string Version = "2.00";
 		/*
 			Ver.2.00	19/12/06	DGVの内容の進捗率には％を付けてクリップボードにコピー
+						19/12/09	「すべて項目」のCSVだけ処理するように変更
 			Ver.1.20	19/12/05	期日ありのDGVの項目を変更（＃と題名を右側に移動）／進捗率に％を追加
 			Ver.1.10	19/12/05	担当者別タスク数が間違っていた／期日未定タスクに（未割り当て）も表示
 		*/
@@ -24,8 +25,8 @@ namespace RMAnalyser
 		private DGV DgvNoLimitTask = new DGV();
 		private List<Dictionary<int, string>> NoLimitList;
 
+		private readonly string ReadableCsvWord = "#,プロジェクト,トラッカー,親チケット,ステータス,優先度,題名,作成者,担当者,更新日,カテゴリ,対象バージョン,開始日,期日,予定工数,進捗率,作成日,終了日,関連するチケット,プライベート";
 		private readonly string Nobady = "(未割り当て)";
-
 		private readonly int[] UseCsvTbl = {
 			45,		// 00 #(ID)		★CSV_TASK_ID
 			0,		// 01 プロジェクト
@@ -131,7 +132,17 @@ namespace RMAnalyser
 				string line;
 				for (int row = 0; (line = sr.ReadLine()) != null; row++) {
 					// カラム名をスキップ
-					if (row == 0) continue;
+					if (row == 0) {
+						if (line != this.ReadableCsvWord) {
+							MessageBox.Show("RedmineのCSVは「すべての項目」を選択したファイルを使用してください。",
+								"エラー",
+								MessageBoxButtons.OK,
+								MessageBoxIcon.Error);
+							return;
+						}
+
+						continue;
+					}
 
 					string[] values = line.Split(',');
 					// 横ライン分
