@@ -39,11 +39,7 @@ namespace RMAnalyser
 			45,		// 00 #(ID)		★CSV_TASK_ID
 			0,		// 01 プロジェクト
 			0,      // 02 トラッカー
-#if SW_PARENT
 			45,		// 03 親チケット★CSV_PARENT
-#else
-			0,		// 03 親チケット★CSV_PARENT
-#endif
 			0,		// 04 ステータス
 			0,		// 05 優先度
 			250,	// 06 題名		★CSV_TASK_NAME
@@ -177,11 +173,9 @@ namespace RMAnalyser
 
 							#endregion 担当者別の進捗情報の取得
 
-#if SW_PARENT
 							if (column == CSV_PARENT) {
 								this.ParentList.Add(values[CSV_PARENT]);
 							}
-#endif
 						}
 
 						rowDicList.Add(dataDic);
@@ -205,7 +199,7 @@ namespace RMAnalyser
 			this.DgvProgress.Init(this.groupBox3, "期日ありタスク進捗情報", "");
 
 			this.DgvProgress.Columns.Clear();
-			//this.DgvProgress.ScrollBars = ScrollBars.Vertical;//※常に垂直スクロールバーを表示させたい
+			//this.DgvProgress.ScrollBars = ScrollBars.Vertical;//※横幅を一定にするため常に垂直スクロールバーを表示させたい
 
 			// カラム(ヘッダ)の出力
 			DataGridViewTextBoxColumn columns;
@@ -253,7 +247,6 @@ namespace RMAnalyser
 			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 			this.DgvProgress.Columns.Add(columns);
 
-#if SW_PARENT
 			columns = new DataGridViewTextBoxColumn();//★
 			columns.HeaderText = "親#";
 			columns.Name = "PARENT";
@@ -261,7 +254,7 @@ namespace RMAnalyser
 			columns.Width = UseCsvTbl[CSV_PARENT];
 			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
 			this.DgvProgress.Columns.Add(columns);
-#endif
+
 			columns = new DataGridViewTextBoxColumn();//★
 			columns.HeaderText = "題名";
 			columns.Name = "TITLE";
@@ -315,9 +308,7 @@ namespace RMAnalyser
 				this.DgvProgress.Rows.Add();
 				string myId = dicCell[CSV_TASK_ID];
 				this.DgvProgress.Rows[dicRowCount].Cells["ID"].Value = myId;
-#if SW_PARENT
 				if (this.ParentList.Any(id => id == myId)) {
-					//this.DgvProgress.Rows[dicRowCount].Cells["ID"].Style.ForeColor = Color.Red;//赤文字
 					this.DgvProgress.Rows[dicRowCount].Cells["ID"].Style.BackColor = Color.Yellow;
 				}
 
@@ -327,11 +318,9 @@ namespace RMAnalyser
 				}
 				else {
 					this.DgvProgress.Rows[dicRowCount].Cells["PARENT"].Style.ForeColor = Color.Red;
-					//this.DgvProgress.Rows[dicRowCount].Cells["PARENT"].Style.BackColor = Color.Yellow;
 				}
 				this.DgvProgress.Rows[dicRowCount].Cells["PARENT"].Value = parent;
 
-#endif
 				this.DgvProgress.Rows[dicRowCount].Cells["TITLE"].Value = dicCell[CSV_TASK_NAME];
 				this.DgvProgress.Rows[dicRowCount].Cells["NAME"].Value = dicCell[CSV_PERSON_NAME];
 				this.DgvProgress.Rows[dicRowCount].Cells["BAR"].Value = Convert.ToInt32(dicCell[CSV_PROGRESS_RATE]);
@@ -395,7 +384,6 @@ namespace RMAnalyser
 				this.DgvMember.Rows[row].Cells[1].Value = pt.Value.Count.ToString();
 				// 進捗率
 				this.DgvMember.Rows[row].Cells[2].Value = Convert.ToInt32(personTask.GetAverageProgress(name));
-				//this.DgvMember.Rows[row].Cells[2].Value = personTask.GetAverageProgress(name).ToString("F1") + "%";
 				row++;
 			}
 			this.DgvMember.SetGroupTextRowCount();
