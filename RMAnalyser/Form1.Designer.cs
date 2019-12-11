@@ -80,7 +80,7 @@
 			// 
 			this.groupBox3.Location = new System.Drawing.Point(271, 13);
 			this.groupBox3.Name = "groupBox3";
-			this.groupBox3.Size = new System.Drawing.Size(603, 312);
+			this.groupBox3.Size = new System.Drawing.Size(636, 312);
 			this.groupBox3.TabIndex = 2;
 			this.groupBox3.TabStop = false;
 			this.groupBox3.Text = "groupBox3";
@@ -92,7 +92,7 @@
 			this.textBox開発.Multiline = true;
 			this.textBox開発.Name = "textBox開発";
 			this.textBox開発.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.textBox開発.Size = new System.Drawing.Size(378, 202);
+			this.textBox開発.Size = new System.Drawing.Size(411, 202);
 			this.textBox開発.TabIndex = 3;
 			// 
 			// groupBox4
@@ -139,7 +139,7 @@
 			this.AllowDrop = true;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(880, 605);
+			this.ClientSize = new System.Drawing.Size(918, 605);
 			this.Controls.Add(this.button期日未定タスク);
 			this.Controls.Add(this.label情報);
 			this.Controls.Add(this.button期日あり進捗);
