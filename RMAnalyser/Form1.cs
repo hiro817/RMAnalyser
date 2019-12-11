@@ -255,7 +255,7 @@ namespace RMAnalyser
 
 #if SW_PARENT
 			columns = new DataGridViewTextBoxColumn();//★
-			columns.HeaderText = "#親";
+			columns.HeaderText = "親#";
 			columns.Name = "PARENT";
 			columns.DataPropertyName = "Parent";
 			columns.Width = UseCsvTbl[CSV_PARENT];
