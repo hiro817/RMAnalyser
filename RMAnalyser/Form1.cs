@@ -279,8 +279,11 @@ namespace RMAnalyser
 			NoLimitList = new List<Dictionary<int, string>>();
 			int dicRowCount = 0;
 
-			//名前順にソート→ （未割り当て）が先頭を先頭にする
-			var sort = rowDicList.OrderBy(n => n[CSV_PERSON_NAME].ToString()).ToList();
+			//名前順にソート→ （親チケット）が先頭を先頭にする
+			var sort = rowDicList
+				.OrderBy(n => n[CSV_PERSON_NAME].ToString())
+				.ThenBy(n => n[CSV_TASK_ID].ToString())
+				.ToList();
 			foreach (var dicCell in sort) {
 				// 条件を満たしたタスクだけ表示
 				if (dicCell[CSV_PROGRESS_RATE] == "100") continue;
@@ -382,7 +385,7 @@ namespace RMAnalyser
 		{
 			this.DgvMember.Rows.Clear();
 			int row = 0;
-			//名前順にソート→ （未割り当て）を先頭にする
+			//名前順にソート→ （親チケット）を先頭にする
 			var sort = new SortedDictionary<string, List<float>>(personTask.NameDic);
 			foreach (var pt in sort) {
 				string name = pt.Key;
@@ -437,8 +440,11 @@ namespace RMAnalyser
 
 			int row = 0;
 
-			//名前順にソート→ （未割り当て）を先頭にする
-			var sort = this.NoLimitList.OrderBy(n => n[CSV_PERSON_NAME].ToString()).ToList();
+			//名前順にソート→ （親チケット）を先頭にする
+			var sort = this.NoLimitList
+				.OrderBy(n => n[CSV_PERSON_NAME].ToString())
+				.ThenBy(n => n[CSV_TASK_ID].ToString())
+				.ToList();
 			foreach (var dic in sort) {
 				this.DgvNoLimitTask.Rows.Add(dic[CSV_TASK_ID]);
 				this.DgvNoLimitTask.Rows[row].Cells["題名"].Value = dic[CSV_TASK_NAME];
