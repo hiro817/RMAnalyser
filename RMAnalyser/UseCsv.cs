@@ -41,9 +41,9 @@ namespace RMAnalyser
 		public const int _PERSON_NAME = 8;
 		public const int _DELIVERY_DAY = 13;
 		public const int _PROGRESS_RATE = 15;
-		public const int _REMAIMING = 20;
+		public const int _REMAIMING_R = 20;       //※右寄せにしたい
 		public const int _PROGRESS_BAR = 21;
-		public const int _TASK_NUM = 22;
+		public const int _TASK_NUM_R = 22;        //※右寄せにしたい
 
 	}
 }

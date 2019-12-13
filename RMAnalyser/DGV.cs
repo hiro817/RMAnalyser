@@ -150,7 +150,6 @@ namespace RMAnalyser
 
 			this.Columns.Add(pgb);
 			this.Columns[ch.Id].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
-			//this.Columns[ch.Id].Width = ch.Width;
 			this.Columns[ch.Id].Width = UseCsv.Tbl[ch.TblIndex];
 			this.Columns[ch.Id].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
 		}
@@ -158,9 +157,16 @@ namespace RMAnalyser
 		private void MakeHeaderColumns(ColumnHeader ch)
 		{
 			this.Columns.Add(ch.Id, ch.Title);
-			this.Columns[ch.Id].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;//通常はこっちだが
-																									 //this.Columns[ch.Id].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;//個数はこっちが理想
 			this.Columns[ch.Id].Width = UseCsv.Tbl[ch.TblIndex];
+
+			if (ch.TblIndex == UseCsv._REMAIMING_R || ch.TblIndex == UseCsv._TASK_NUM_R) {
+				//this.Columns[ch.Id].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+				this.Columns[ch.Id].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+			}
+			else {
+				this.Columns[ch.Id].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			}
+
 		}
 	}
 }

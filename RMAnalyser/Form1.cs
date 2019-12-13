@@ -39,7 +39,7 @@ namespace RMAnalyser
 			new ColumnHeader("NAME",        "名前",    UseCsv._PERSON_NAME),
 			new ColumnHeader( "BAR",        "進捗率",  UseCsv._PROGRESS_BAR, true),
 			new ColumnHeader("LIMIT",       "期日",    UseCsv._DELIVERY_DAY),
-			new ColumnHeader( "REMAIMING",  "残り",    UseCsv._REMAIMING),	//※右寄せにしたい
+			new ColumnHeader( "REMAIMING",  "残り",    UseCsv._REMAIMING_R),	//※右寄せ
 			new ColumnHeader( "ID",         "#",       UseCsv._TASK_ID),
 			new ColumnHeader( "PARENT",     "親#",     UseCsv._PARENT),
 			new ColumnHeader( "TITLE",      "題名",    UseCsv._TASK_NAME),
@@ -47,7 +47,7 @@ namespace RMAnalyser
 
 		private readonly ColumnHeader[] MemberHeaderTbl = {
 			new ColumnHeader("担当者",		"担当者",    UseCsv._PERSON_NAME),
-			new ColumnHeader("タスク数",    "数",        UseCsv._TASK_NUM),		//※右寄せにしたい
+			new ColumnHeader("タスク数",    "数",        UseCsv._TASK_NUM_R),	//※右寄せ
 			new ColumnHeader("Progress",    "平均進捗率",UseCsv._PROGRESS_BAR, true)
 		};
 
