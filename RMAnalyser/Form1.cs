@@ -1,6 +1,4 @@
-﻿#define SW_PARENT
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -12,8 +10,10 @@ namespace RMAnalyser
 {
 	public partial class Form1 : Form
 	{
-		private readonly string Version = "2.20";
+		private readonly string Version = "2.30";
 		/*
+			Ver.2.30	19/12/12	内部処理（クラスの分割）/クラス追加
+									例外処理の追加
 			Ver.2.20	19/12/11	親チケットも表示・EXCELで開いている場合のエラーを追加
 			Ver.2.10	19/12/09	担当者の（未割り当て）が先頭になるようにソート
 						19/12/11	(未割り当て)を(親チケット)に変更
@@ -33,44 +33,30 @@ namespace RMAnalyser
 		private List<string> ParentList;
 
 		private readonly string ReadableCsvWord = "#,プロジェクト,トラッカー,親チケット,ステータス,優先度,題名,作成者,担当者,更新日,カテゴリ,対象バージョン,開始日,期日,予定工数,進捗率,作成日,終了日,関連するチケット,プライベート";
-		private readonly string Nobady = "(親チケット)";
+		private readonly string Nobody = "(親チケット)";
 
-		private readonly int[] UseCsvTbl = {
-			45,		// 00 #(ID)		★CSV_TASK_ID
-			0,		// 01 プロジェクト
-			0,      // 02 トラッカー
-			45,		// 03 親チケット★CSV_PARENT
-			0,		// 04 ステータス
-			0,		// 05 優先度
-			250,	// 06 題名		★CSV_TASK_NAME
-			0,		// 07 作成者
-			80,		// 08 担当者	★CSV_PERSON_NAME
-			0,		// 09 更新日
-			0,		// 10 カテゴリ
-			0,		// 11 対象バージョン
-			0,		// 12 開始日
-			74,		// 13 期日		★CSV_DELIVERY_DAY
-			0,		// 14 予定工数
-			52,		// 15 進捗率	★CSV_PROGRESS_RATE
-			0,		// 16 作成日
-			0,		// 17 終了日
-			0,		// 18 関連するチケット
-			0,		// 19 プライベート
-			// 以下追加分
-			54,		// 20 残り日数	★CSV_REMAIMING
-			75,		// 21 プログレスバー	★CSV_PROGRESS_BAR
+		private readonly ColumnHeader[] ProgressHeaderTbl = {
+			new ColumnHeader("NAME",        "名前",    UseCsv._PERSON_NAME),
+			new ColumnHeader( "BAR",        "進捗率",  UseCsv._PROGRESS_BAR, true),
+			new ColumnHeader("LIMIT",       "期日",    UseCsv._DELIVERY_DAY),
+			new ColumnHeader( "REMAIMING",  "残り",    UseCsv._REMAIMING),	//※右寄せにしたい
+			new ColumnHeader( "ID",         "#",       UseCsv._TASK_ID),
+			new ColumnHeader( "PARENT",     "親#",     UseCsv._PARENT),
+			new ColumnHeader( "TITLE",      "題名",    UseCsv._TASK_NAME),
 		};
 
-		//※下記はswitchで使う場合、readonlyには出来ない
-		private const int CSV_TASK_ID = 0;
+		private readonly ColumnHeader[] MemberHeaderTbl = {
+			new ColumnHeader("担当者",		"担当者",    UseCsv._PERSON_NAME),
+			new ColumnHeader("タスク数",    "数",        UseCsv._TASK_NUM),		//※右寄せにしたい
+			new ColumnHeader("Progress",    "平均進捗率",UseCsv._PROGRESS_BAR, true)
+		};
 
-		private const int CSV_PARENT = 3;
-		private const int CSV_TASK_NAME = 6;
-		private const int CSV_PERSON_NAME = 8;
-		private const int CSV_DELIVERY_DAY = 13;
-		private const int CSV_PROGRESS_RATE = 15;
-		private const int CSV_REMAIMING = 20;
-		private const int CSV_PROGRESS_BAR = 21;
+		private readonly ColumnHeader[] NoLimitHeaderTbl = {
+			new ColumnHeader("id",          "#",       UseCsv._TASK_ID),
+			new ColumnHeader("題名",		"題名",    UseCsv._TASK_NAME),
+			new ColumnHeader("担当者",		"担当者",  UseCsv._PERSON_NAME),
+			new ColumnHeader("Progress",    "進捗率",  UseCsv._PROGRESS_BAR, true)
+		};
 
 		public Form1()
 		{
@@ -149,23 +135,23 @@ namespace RMAnalyser
 						var dataDic = new Dictionary<int, string>();
 						for (int column = 0; column < values.Length; column++) {
 							// 不要データの除外
-							if (this.UseCsvTbl[column] == 0) continue;
+							if (UseCsv.Tbl[column] == 0) continue;
 
 							// 本体データの取得
 							dataDic.Add(column, values[column]);
 
 							#region 担当者別の進捗情報の取得
 
-							if (column == CSV_PERSON_NAME) {
-								string progressName = this.Nobady;
-								if (values[CSV_PERSON_NAME] != "\"\"") {
-									progressName = values[CSV_PERSON_NAME];
+							if (column == UseCsv._PERSON_NAME) {
+								string progressName = this.Nobody;
+								if (values[UseCsv._PERSON_NAME] != "\"\"") {
+									progressName = values[UseCsv._PERSON_NAME];
 								}
 								else {
-									progressName = this.Nobady;
+									progressName = this.Nobody;
 								}
 
-								int rate = Convert.ToInt32(values[CSV_PROGRESS_RATE]);
+								int rate = Convert.ToInt32(values[UseCsv._PROGRESS_RATE]);
 								if (!personsTask.IsNewPerson(progressName, rate)) {
 									personsTask.AddProgress(progressName, rate);
 								}
@@ -173,8 +159,8 @@ namespace RMAnalyser
 
 							#endregion 担当者別の進捗情報の取得
 
-							if (column == CSV_PARENT) {
-								this.ParentList.Add(values[CSV_PARENT]);
+							if (column == UseCsv._PARENT) {
+								this.ParentList.Add(values[UseCsv._PARENT]);
 							}
 						}
 
@@ -182,9 +168,12 @@ namespace RMAnalyser
 					}
 				}
 			}
-			catch (Exception e) {
-				MessageBox.Show("Excelで開いている場合は閉じてから使ってください",
+			catch (IOException e) {
+				MessageBox.Show("Excelで開いている場合は閉じてから使ってください\r\n" + e.Message,
 					"エラー", MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
+			}
+			catch (Exception e) {
+				MessageBox.Show("例外が発生", "エラー\r\n" + e.Message, MessageBoxButtons.OKCancel, MessageBoxIcon.Error);
 			}
 			MakeProgressRow(rowDicList);
 			MakePersonTaskGrid(personsTask);
@@ -193,77 +182,7 @@ namespace RMAnalyser
 
 		private void InitDgvProgress()
 		{
-			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).BeginInit();
-
-			this.DgvProgress.SetGroupTextRowCount();
-			this.DgvProgress.Init(this.groupBox3, "期日ありタスク進捗情報", "");
-
-			this.DgvProgress.Columns.Clear();
-			//this.DgvProgress.ScrollBars = ScrollBars.Vertical;//※横幅を一定にするため常に垂直スクロールバーを表示させたい
-
-			// カラム(ヘッダ)の出力
-			DataGridViewTextBoxColumn columns;
-
-			columns = new DataGridViewTextBoxColumn();//★
-			columns.HeaderText = "名前";
-			columns.Name = "NAME";
-			columns.DataPropertyName = "Name";
-			columns.Width = UseCsvTbl[CSV_PERSON_NAME];
-			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
-			this.DgvProgress.Columns.Add(columns);
-
-			// 「プログレスバー」項目を追加
-			var pgb = new DataGridViewProgressBarColumn();
-			pgb.HeaderText = "進捗率";
-			pgb.Name = "BAR";
-			pgb.DataPropertyName = "Progress";
-			pgb.Width = UseCsvTbl[CSV_PROGRESS_BAR];
-			pgb.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
-			this.DgvProgress.Columns.Add(pgb);
-
-			columns = new DataGridViewTextBoxColumn();//★
-			columns.HeaderText = "期日";
-			columns.Name = "LIMIT";
-			columns.DataPropertyName = "Limit";
-			columns.Width = UseCsvTbl[CSV_DELIVERY_DAY];
-			columns.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;//※効果なし?
-			this.DgvProgress.Columns.Add(columns);
-
-			// 「残り日数」項目を追加
-			columns = new DataGridViewTextBoxColumn();//★
-			columns.HeaderText = "残り";
-			columns.Name = "REMAIMING";
-			columns.DataPropertyName = "Remaiming";
-			columns.Width = UseCsvTbl[CSV_REMAIMING];
-			columns.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;//※効果なし?
-			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-			this.DgvProgress.Columns.Add(columns);
-
-			columns = new DataGridViewTextBoxColumn();//★
-			columns.HeaderText = "#";
-			columns.Name = "ID";
-			columns.DataPropertyName = "Id";
-			columns.Width = UseCsvTbl[CSV_TASK_ID];
-			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
-			this.DgvProgress.Columns.Add(columns);
-
-			columns = new DataGridViewTextBoxColumn();//★
-			columns.HeaderText = "親#";
-			columns.Name = "PARENT";
-			columns.DataPropertyName = "Parent";
-			columns.Width = UseCsvTbl[CSV_PARENT];
-			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
-			this.DgvProgress.Columns.Add(columns);
-
-			columns = new DataGridViewTextBoxColumn();//★
-			columns.HeaderText = "題名";
-			columns.Name = "TITLE";
-			columns.DataPropertyName = "Title";
-			columns.Width = UseCsvTbl[CSV_TASK_NAME];
-			columns.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
-			this.DgvProgress.Columns.Add(columns);
-
-			((System.ComponentModel.ISupportInitialize)(this.DgvProgress)).EndInit();
+			this.DgvProgress.Init(this.groupBox3, "期日ありタスク進捗情報", ProgressHeaderTbl);
 		}
 
 		private void MakeProgressRow(List<Dictionary<int, string>> rowDicList)
@@ -274,22 +193,23 @@ namespace RMAnalyser
 
 			//名前順にソート→ （親チケット）が先頭を先頭にする
 			var sort = rowDicList
-				.OrderBy(n => n[CSV_PERSON_NAME].ToString())
-				.ThenBy(n => n[CSV_TASK_ID].ToString())
+				.OrderBy(n => n[UseCsv._PERSON_NAME].ToString())
+				.ThenBy(n => n[UseCsv._TASK_ID].ToString())
 				.ToList();
+
 			foreach (var dicCell in sort) {
 				// 条件を満たしたタスクだけ表示
-				if (dicCell[CSV_PROGRESS_RATE] == "100") continue;
+				if (dicCell[UseCsv._PROGRESS_RATE] == "100") continue;
 
-				string name = dicCell[CSV_PERSON_NAME];
-				string day = dicCell[CSV_DELIVERY_DAY];
+				string name = dicCell[UseCsv._PERSON_NAME];
+				string day = dicCell[UseCsv._DELIVERY_DAY];
 
 				if (name == "\"\"") {
-					dicCell[CSV_PERSON_NAME] = this.Nobady;
+					dicCell[UseCsv._PERSON_NAME] = this.Nobody;
 				}
 
 				if (name == "\"\"" && day == "\"\"") {
-					dicCell[CSV_PERSON_NAME] = this.Nobady;
+					dicCell[UseCsv._PERSON_NAME] = this.Nobody;
 					this.NoLimitList.Add(dicCell);
 					continue;
 				}
@@ -299,20 +219,14 @@ namespace RMAnalyser
 					continue;
 				}
 
-				// 残り日数の追加
-				dicCell.Add(CSV_REMAIMING, UseCsvTbl[CSV_REMAIMING].ToString());
-
-				// プログレスバーの追加
-				dicCell.Add(CSV_PROGRESS_BAR, UseCsvTbl[CSV_PROGRESS_BAR].ToString());
-
 				this.DgvProgress.Rows.Add();
-				string myId = dicCell[CSV_TASK_ID];
+				string myId = dicCell[UseCsv._TASK_ID];
 				this.DgvProgress.Rows[dicRowCount].Cells["ID"].Value = myId;
 				if (this.ParentList.Any(id => id == myId)) {
 					this.DgvProgress.Rows[dicRowCount].Cells["ID"].Style.BackColor = Color.Yellow;
 				}
 
-				string parent = dicCell[CSV_PARENT];
+				string parent = dicCell[UseCsv._PARENT];
 				if (parent == "\"\"") {
 					parent = String.Empty;
 				}
@@ -321,13 +235,13 @@ namespace RMAnalyser
 				}
 				this.DgvProgress.Rows[dicRowCount].Cells["PARENT"].Value = parent;
 
-				this.DgvProgress.Rows[dicRowCount].Cells["TITLE"].Value = dicCell[CSV_TASK_NAME];
-				this.DgvProgress.Rows[dicRowCount].Cells["NAME"].Value = dicCell[CSV_PERSON_NAME];
-				this.DgvProgress.Rows[dicRowCount].Cells["BAR"].Value = Convert.ToInt32(dicCell[CSV_PROGRESS_RATE]);
-				this.DgvProgress.Rows[dicRowCount].Cells["LIMIT"].Value = dicCell[CSV_DELIVERY_DAY];
+				this.DgvProgress.Rows[dicRowCount].Cells["TITLE"].Value = dicCell[UseCsv._TASK_NAME];
+				this.DgvProgress.Rows[dicRowCount].Cells["NAME"].Value = dicCell[UseCsv._PERSON_NAME];
+				this.DgvProgress.Rows[dicRowCount].Cells["BAR"].Value = Convert.ToInt32(dicCell[UseCsv._PROGRESS_RATE]);
+				this.DgvProgress.Rows[dicRowCount].Cells["LIMIT"].Value = dicCell[UseCsv._DELIVERY_DAY];
 
 				DateTime dNow = DateTime.Now.Date;  // 時間なしの今日
-				DateTime dTime = DateTime.Parse(dicCell[CSV_DELIVERY_DAY]);
+				DateTime dTime = DateTime.Parse(dicCell[UseCsv._DELIVERY_DAY]);
 				TimeSpan span = dTime - dNow;
 				this.DgvProgress.Rows[dicRowCount].Cells["REMAIMING"].Value = span.Days.ToString() + "日";
 				if (span.Days <= 0) {
@@ -340,34 +254,7 @@ namespace RMAnalyser
 
 		private void InitDgvMember()
 		{
-			((System.ComponentModel.ISupportInitialize)(this.DgvMember)).BeginInit();
-
-			this.DgvMember.Columns.Clear();
-
-			//this.DgvMember.Init(this.groupBox2, "担当者別のタスク", "No.");//※貼付け時に「No.」が不要になるので無くした＠19/12/03
-			this.DgvMember.Init(this.groupBox2, "担当者別のタスク");
-
-			// カラム(ヘッダ)の出力
-			this.DgvMember.Columns.Add("担当者", "担当者");
-			this.DgvMember.Columns["担当者"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
-			this.DgvMember.Columns["担当者"].Width = UseCsvTbl[(int)CSV_PERSON_NAME];
-
-			this.DgvMember.Columns.Add("タスク数", "数");
-			this.DgvMember.Columns["タスク数"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
-			this.DgvMember.Columns["タスク数"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-			this.DgvMember.Columns["タスク数"].Width = 30;
-
-			// 「プログレスバー」項目を追加
-			var pgb = new DataGridViewProgressBarColumn();
-			pgb.DataPropertyName = "Progress";
-			pgb.Name = "Progress";
-			pgb.HeaderText = "平均進捗率";
-			//pgb.HeaderText = "平均";↑でも大丈夫だった＠19/12/09
-			this.DgvMember.Columns.Add(pgb);
-			this.DgvMember.Columns["Progress"].Width = UseCsvTbl[CSV_PROGRESS_BAR];//75;
-			this.DgvMember.Columns["Progress"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
-
-			((System.ComponentModel.ISupportInitialize)(this.DgvMember)).EndInit();
+			this.DgvMember.Init(this.groupBox2, "期日未定のタスク", MemberHeaderTbl);
 		}
 
 		private void MakePersonTaskGrid(PersonsTask personTask)
@@ -391,35 +278,7 @@ namespace RMAnalyser
 
 		private void InitDgvNoLimitTask()
 		{
-			((System.ComponentModel.ISupportInitialize)(this.DgvNoLimitTask)).BeginInit();
-
-			this.DgvNoLimitTask.Columns.Clear();
-
-			this.DgvNoLimitTask.Init(this.groupBox4, "期日未定のタスク", "");
-
-			// カラム(ヘッダ)の出力
-			this.DgvNoLimitTask.Columns.Add("id", "#");
-			this.DgvNoLimitTask.Columns["id"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
-			this.DgvNoLimitTask.Columns["id"].Width = UseCsvTbl[(int)CSV_TASK_ID];
-
-			this.DgvNoLimitTask.Columns.Add("題名", "題名");
-			this.DgvNoLimitTask.Columns["題名"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
-			this.DgvNoLimitTask.Columns["題名"].Width = UseCsvTbl[(int)CSV_TASK_NAME];
-
-			this.DgvNoLimitTask.Columns.Add("担当者", "担当者");
-			this.DgvNoLimitTask.Columns["担当者"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
-			this.DgvNoLimitTask.Columns["担当者"].Width = UseCsvTbl[(int)CSV_PERSON_NAME];
-
-			// 「プログレスバー」項目を追加
-			var pgb = new DataGridViewProgressBarColumn();
-			pgb.DataPropertyName = "Progress";
-			pgb.HeaderText = "進捗率";
-			pgb.Name = "Progress";
-			this.DgvNoLimitTask.Columns.Add(pgb);
-			this.DgvNoLimitTask.Columns["Progress"].Width = UseCsvTbl[CSV_PROGRESS_BAR];
-			this.DgvNoLimitTask.Columns["Progress"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
-
-			((System.ComponentModel.ISupportInitialize)(this.DgvNoLimitTask)).EndInit();
+			this.DgvNoLimitTask.Init(this.groupBox4, "期日未定のタスク", NoLimitHeaderTbl);
 		}
 
 		private void MakeNoLimitTaskGrid()
@@ -430,14 +289,15 @@ namespace RMAnalyser
 
 			//名前順にソート→ （親チケット）を先頭にする
 			var sort = this.NoLimitList
-				.OrderBy(n => n[CSV_PERSON_NAME].ToString())
-				.ThenBy(n => n[CSV_TASK_ID].ToString())
+				.OrderBy(n => n[UseCsv._PERSON_NAME].ToString())
+				.ThenBy(n => n[UseCsv._TASK_ID].ToString())
 				.ToList();
+
 			foreach (var dic in sort) {
-				this.DgvNoLimitTask.Rows.Add(dic[CSV_TASK_ID]);
-				this.DgvNoLimitTask.Rows[row].Cells["題名"].Value = dic[CSV_TASK_NAME];
-				this.DgvNoLimitTask.Rows[row].Cells["担当者"].Value = dic[CSV_PERSON_NAME];
-				this.DgvNoLimitTask.Rows[row].Cells["Progress"].Value = Convert.ToInt32(dic[CSV_PROGRESS_RATE]);
+				this.DgvNoLimitTask.Rows.Add(dic[UseCsv._TASK_ID]);
+				this.DgvNoLimitTask.Rows[row].Cells["題名"].Value = dic[UseCsv._TASK_NAME];
+				this.DgvNoLimitTask.Rows[row].Cells["担当者"].Value = dic[UseCsv._PERSON_NAME];
+				this.DgvNoLimitTask.Rows[row].Cells["Progress"].Value = Convert.ToInt32(dic[UseCsv._PROGRESS_RATE]);
 				row++;
 			}
 			this.DgvNoLimitTask.SetGroupTextRowCount();

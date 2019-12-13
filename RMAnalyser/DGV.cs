@@ -12,7 +12,7 @@ namespace RMAnalyser
 		public GroupBox ParentGroupBox { get; set; }
 		public string GBText { get; set; }
 
-		public void Init(GroupBox groupBox, string gbText, string titleName = "")
+		public void Init(GroupBox groupBox, string gbText, ColumnHeader[] headerTbl)
 		{
 			this.GBText = gbText;
 
@@ -23,6 +23,7 @@ namespace RMAnalyser
 			this.Dock = DockStyle.Fill;
 			this.Location = new Point(10, 20);
 
+#if false//※左端に名前と連番をつけるとき
 			// 左上にタイトルがあるときだけ行番号をつける
 			if (titleName != "") {
 				// 左上隅のセルの値
@@ -49,7 +50,9 @@ namespace RMAnalyser
 					  TextFormatFlags.VerticalCenter | TextFormatFlags.Right);
 				};
 			}
-			else {
+			else
+#endif
+			{
 				// 左ヘッダをなくする
 				this.RowHeadersVisible = false;
 			}
@@ -81,6 +84,25 @@ namespace RMAnalyser
 			//VScroll = true;
 
 			SetGroupTextRowCount();
+
+			InitDgvHeader(headerTbl);
+		}
+
+		private void InitDgvHeader(ColumnHeader[] headerTbl)
+		{
+			((System.ComponentModel.ISupportInitialize)(this)).BeginInit();
+			//this.Columns.Clear();
+
+			foreach (var ch in headerTbl) {
+				if (ch.IsProgress) {
+					MakeProgressColumns(new ColumnHeader(ch.Id, ch.Title, ch.TblIndex));
+				}
+				else {
+					MakeHeaderColumns(new ColumnHeader(ch.Id, ch.Title, ch.TblIndex));
+				}
+			}
+
+			((System.ComponentModel.ISupportInitialize)(this)).EndInit();
 		}
 
 		public void CopyToClipboard(int percentColumn = -1)
@@ -117,6 +139,28 @@ namespace RMAnalyser
 			if (this.GBText != null) {
 				this.ParentGroupBox.Text = this.GBText + " (" + this.RowCount.ToString() + ")";
 			}
+		}
+
+		private void MakeProgressColumns(ColumnHeader ch)
+		{
+			var pgb = new DataGridViewProgressBarColumn();
+			pgb.HeaderText = ch.Title;
+			pgb.DataPropertyName = ch.Id;
+			pgb.Name = ch.Id;
+
+			this.Columns.Add(pgb);
+			this.Columns[ch.Id].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+			//this.Columns[ch.Id].Width = ch.Width;
+			this.Columns[ch.Id].Width = UseCsv.Tbl[ch.TblIndex];
+			this.Columns[ch.Id].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+		}
+
+		private void MakeHeaderColumns(ColumnHeader ch)
+		{
+			this.Columns.Add(ch.Id, ch.Title);
+			this.Columns[ch.Id].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;//通常はこっちだが
+																									 //this.Columns[ch.Id].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;//個数はこっちが理想
+			this.Columns[ch.Id].Width = UseCsv.Tbl[ch.TblIndex];
 		}
 	}
 }
