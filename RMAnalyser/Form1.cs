@@ -12,6 +12,7 @@ namespace RMAnalyser
 	{
 		private readonly string Version = "2.30";
 		/*
+						19/12/17	GitHubにPrivateで追加
 			Ver.2.30	19/12/13	特定のカラムを右寄せに出来るようにした
 						19/12/12	内部処理（クラスの分割）/クラス追加
 									例外処理の追加
